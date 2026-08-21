@@ -40,6 +40,16 @@ docker-compose.yml — runs the container on the Synology
    http://100.123.139.84:8080
    ```
 
+### Cloudflare Tunnel (public access)
+
+The site is publicly accessible at `https://www.keithhinds.co.uk` via a Cloudflare Tunnel.
+
+- Tunnel name: `Synology KmanDS220` in [one.dash.cloudflare.com](https://one.dash.cloudflare.com) → **Networks** → **Tunnels & Mesh**
+- Published application route: subdomain `www`, service `HTTP`, URL `keith-website:80`
+- > ⚠️ Use `keith-website:80` (Docker service name) — NOT `localhost:8080`
+
+---
+
 ### Updating the site
 
 Edit `index.html` locally, then re-run:

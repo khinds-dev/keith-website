@@ -69,9 +69,11 @@ The site is exposed to the public internet via a Cloudflare Tunnel (`cloudflared
 
 ### Manage the tunnel hostname
 To add or change the public URL (e.g. point `www.yourdomain.com` at the site):
-1. Go to [one.dash.cloudflare.com](https://one.dash.cloudflare.com) → **Networks** → **Tunnels**
-2. Click the `synology` tunnel → **Edit** → **Public Hostname**
-3. Add/edit: Subdomain + Domain → Service: `http://localhost:8080`
+1. Go to [one.dash.cloudflare.com](https://one.dash.cloudflare.com) → **Networks** → **Tunnels & Mesh**
+2. Click the `Synology KmanDS220` tunnel → **Published application routes** tab
+3. Add/edit: Subdomain + Domain → Service type: `HTTP` → URL: `keith-website:80`
+
+> ⚠️ Do NOT use `localhost:8080` — inside Docker, `localhost` refers to the cloudflared container itself, not the web container. Use the Docker service name `keith-website:80` instead so cloudflared routes to the correct container over the shared Docker network.
 
 ---
 
