@@ -34,8 +34,9 @@ AGENT.md           — this file
 | SSH auth        | Key-based (no password required) — `~/.ssh/id_ed25519` is authorised |
 | Docker path     | `/var/packages/ContainerManager/target/usr/bin/docker` |
 | Project path    | `/volume1/docker/keith-website/` |
-| Site URL        | `http://100.123.139.84:8080` |
+| Site URL (local)| `http://100.123.139.84:8080` |
 | Container name  | `keith-website`        |
+| Tunnel container| `keith-cloudflared`    |
 
 ### Notes on the Synology environment
 - SSH is on **port 83**, not the standard 22.
@@ -45,6 +46,30 @@ AGENT.md           — this file
 - The Docker socket (`/var/run/docker.sock`) is owned by `root:root` — there is no `docker` group on this system.
 - The Synology SSH server does **not** support the SFTP subsystem. Use `scp -O` (legacy SCP mode) for file transfers.
 - SSH commands issued non-interactively may appear to time out but often succeed — allow sufficient timeout (15–30s minimum).
+
+---
+
+## Cloudflare Tunnel
+
+The site is exposed to the public internet via a Cloudflare Tunnel (`cloudflared`) running as a Docker container alongside the web server.
+
+| Property         | Value |
+|------------------|-------|
+| Tunnel name      | `synology` |
+| Token location   | hardcoded in `docker-compose.yml` under the `cloudflared` service `command:` |
+| Container name   | `keith-cloudflared` |
+| Public hostname  | configured in Cloudflare Zero Trust dashboard → Networks → Tunnels → synology → Public Hostnames |
+
+### Check tunnel logs
+```powershell
+& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "sudo /var/packages/ContainerManager/target/usr/bin/docker logs keith-cloudflared 2>&1 | tail -20"
+```
+
+### Manage the tunnel hostname
+To add or change the public URL (e.g. point `www.yourdomain.com` at the site):
+1. Go to [one.dash.cloudflare.com](https://one.dash.cloudflare.com) → **Networks** → **Tunnels**
+2. Click the `synology` tunnel → **Edit** → **Public Hostname**
+3. Add/edit: Subdomain + Domain → Service: `http://localhost:8080`
 
 ---
 

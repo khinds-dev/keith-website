@@ -20,20 +20,19 @@ docker-compose.yml — runs the container on the Synology
 ### Steps
 
 1. **Copy the files to your Synology** (from your local machine):
-   ```bash
-   scp -r . keith@100.123.139.84:/volume1/docker/keith-website/
+   ```powershell
+   scp -O -P 83 index.html nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
    ```
-   > Adjust the username and destination path to match your Synology setup.
 
 2. **SSH into the Synology**:
    ```bash
-   ssh keith@100.123.139.84
+   ssh keithhinds@100.123.139.84 -p 83
    ```
 
 3. **Navigate to the project folder and start the container**:
    ```bash
    cd /volume1/docker/keith-website
-   docker compose up -d --build
+   sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build
    ```
 
 4. **Visit the site** in your browser:
@@ -44,12 +43,12 @@ docker-compose.yml — runs the container on the Synology
 ### Updating the site
 
 Edit `index.html` locally, then re-run:
-```bash
-scp index.html keith@100.123.139.84:/volume1/docker/keith-website/
-ssh keith@100.123.139.84 "cd /volume1/docker/keith-website && docker compose up -d --build"
+```powershell
+scp -O -P 83 index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/
+ssh -p 83 keithhinds@100.123.139.84 "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
 ```
 
 ### Stopping the container
 ```bash
-docker compose down
+sudo /var/packages/ContainerManager/target/usr/bin/docker compose down
 ```

@@ -5,3 +5,11 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: keith-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token eyJhIjoiMzZhZGViZjUyYjM5ZTkyMGIzMGY0NzI0ZjlkYmIyMWIiLCJ0IjoiYTdlYjYwMDYtMGM3My00MTNhLWFlZTAtZWQ2MzRlNmUxZjA0IiwicyI6IllUQTBabUkxTXpVdFl6UTNZUzAwTkdKa0xUZ3lZemt0TldJM01UVXlaak0xWlRnNCJ9
+    depends_on:
+      - web
