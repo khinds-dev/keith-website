@@ -34,7 +34,8 @@ AGENT.md           — this file
 | SSH auth        | Key-based (no password required) — `~/.ssh/id_ed25519` is authorised |
 | Docker path     | `/var/packages/ContainerManager/target/usr/bin/docker` |
 | Project path    | `/volume1/docker/keith-website/` |
-| Site URL (local)| `http://100.123.139.84:8080` |
+| Site URL (local)  | `http://100.123.139.84:8080`     |
+| Site URL (public) | `https://www.keithhinds.co.uk`   |
 | Container name  | `keith-website`        |
 | Tunnel container| `keith-cloudflared`    |
 
@@ -58,7 +59,8 @@ The site is exposed to the public internet via a Cloudflare Tunnel (`cloudflared
 | Tunnel name      | `synology` |
 | Token location   | hardcoded in `docker-compose.yml` under the `cloudflared` service `command:` |
 | Container name   | `keith-cloudflared` |
-| Public hostname  | configured in Cloudflare Zero Trust dashboard → Networks → Tunnels → synology → Public Hostnames |
+| Public URL       | `https://www.keithhinds.co.uk` |
+| Public hostname  | configured in Cloudflare Zero Trust → Networks → Tunnels & Mesh → Synology KmanDS220 → Published application routes |
 
 ### Check tunnel logs
 ```powershell
