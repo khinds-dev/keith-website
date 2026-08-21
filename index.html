@@ -3,96 +3,295 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Keith's Homepage</title>
+  <title>Keith Hinds — Software Engineer</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
-      background: #f7f8fa;
+      background: #ffffff;
       color: #1f2328;
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+    }
+
+    /* ── Header / Hero ── */
+    header {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 3.5rem 2rem 3rem;
+      display: flex;
       justify-content: center;
-      padding: 2rem;
     }
 
-    .card {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 3rem 2.5rem;
-      max-width: 560px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .avatar {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      background: #e5e7eb;
-      margin: 0 auto 1.5rem;
+    .hero {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      color: #57606a;
+      gap: 3rem;
+      max-width: 760px;
+      width: 100%;
     }
 
-    h1 {
-      font-size: 1.75rem;
+    .hero-photo {
+      flex-shrink: 0;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid #e5e7eb;
+    }
+
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .hero-text h1 {
+      font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.35rem;
     }
 
-    .tagline {
+    .hero-text .role {
+      font-size: 1rem;
       color: #57606a;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
+      font-weight: 400;
     }
 
+    .hero-text .bio {
+      font-size: 0.95rem;
+      color: #444d56;
+      line-height: 1.7;
+      max-width: 480px;
+    }
+
+    /* ── Links ── */
     .links {
       display: flex;
-      gap: 0.75rem;
-      justify-content: center;
+      gap: 0.65rem;
+      margin-top: 1.25rem;
       flex-wrap: wrap;
     }
 
     .links a {
-      display: inline-block;
-      padding: 0.5rem 1.25rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
       border: 1px solid #e5e7eb;
       border-radius: 6px;
       text-decoration: none;
       color: #1f2328;
-      font-size: 0.9rem;
-      transition: border-color 0.15s, background 0.15s;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
     }
 
     .links a:hover {
-      border-color: #3b82d4;
-      background: #f0f6ff;
-      color: #3b82d4;
+      border-color: #1f2328;
+      background: #f7f8fa;
+    }
+
+    .links a svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* ── Main content ── */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .content {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    /* ── Section ── */
+    section {
+      margin-bottom: 3rem;
+    }
+
+    section h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #57606a;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* Skills grid */
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .skill-tag {
+      padding: 0.3rem 0.75rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #1f2328;
+    }
+
+    /* Projects */
+    .project-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f0f1f3;
+      gap: 1rem;
+    }
+
+    .project-card:last-child {
+      border-bottom: none;
+    }
+
+    .project-card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .project-card p {
+      font-size: 0.875rem;
+      color: #57606a;
+      line-height: 1.6;
+    }
+
+    .project-card a {
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      color: #57606a;
+      text-decoration: none;
+      border: 1px solid #e5e7eb;
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      align-self: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .project-card a:hover {
+      border-color: #1f2328;
+      color: #1f2328;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid #e5e7eb;
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #57606a;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 560px) {
+      .hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+      .hero-text h1 { font-size: 1.6rem; }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="avatar">👤</div>
-    <h1>Keith</h1>
-    <p class="tagline">
-      <!-- TODO: Replace with your short bio -->
-      Software enthusiast, tinkerer, and Synology homelab operator.<br />
-      Welcome to my corner of the internet.
-    </p>
-    <nav class="links">
-      <a href="https://github.com/YOUR_USERNAME" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://linkedin.com/in/YOUR_PROFILE" target="_blank" rel="noopener">LinkedIn</a>
-      <!-- Add more links here -->
-    </nav>
-  </div>
+
+  <header>
+    <div class="hero">
+      <div class="hero-photo">
+        <img src="profile.jpg" alt="Keith Hinds" />
+      </div>
+      <div class="hero-text">
+        <h1>Keith Hinds</h1>
+        <p class="role">Software Engineer</p>
+        <p class="bio">
+          Passionate about building clean, reliable software. I enjoy working across the full stack,
+          tinkering with homelabs, and automating everything I can get my hands on.
+        </p>
+        <nav class="links">
+          <a href="https://github.com/khinds-dev" target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+              0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
+              -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2
+              -3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
+              .64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08
+              2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01
+              1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="content">
+
+      <section>
+        <h2>Skills</h2>
+        <div class="skills">
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">TypeScript</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">React</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">Linux</span>
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">REST APIs</span>
+          <span class="skill-tag">SQL</span>
+          <span class="skill-tag">CI/CD</span>
+          <span class="skill-tag">Homelab</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Projects</h2>
+        <div class="project-card">
+          <div>
+            <h3>Personal Website</h3>
+            <p>This site — served via Nginx in Docker on a Synology NAS, exposed publicly via Cloudflare Tunnel.</p>
+          </div>
+          <a href="https://github.com/khinds-dev/keith-website" target="_blank" rel="noopener">View →</a>
+        </div>
+        <!-- Add more projects here -->
+      </section>
+
+      <section>
+        <h2>Get in touch</h2>
+        <p style="font-size:0.9rem; color:#57606a; line-height:1.7;">
+          The best way to reach me is via
+          <a href="https://github.com/khinds-dev" target="_blank" rel="noopener"
+             style="color:#1f2328; font-weight:500;">GitHub</a>.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="yr"></span> Keith Hinds
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </footer>
+
 </body>
 </html>
