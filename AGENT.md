@@ -4,6 +4,25 @@ This file documents everything an AI agent needs to know to work effectively in 
 
 ---
 
+## Agent conventions
+
+### "Push to Synology" / "Make my changes live"
+When the user says anything like **"push to Synology"**, **"make my changes live"**, **"deploy"**, or equivalent, always perform the full deployment sequence:
+
+1. Check which HTML/asset files exist locally (`*.html`, `profile.jpg`, etc.)
+2. Copy **all** site files to the Synology via SCP:
+   ```powershell
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html websites.html contact.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+   ```
+3. Rebuild and restart the Docker container:
+   ```powershell
+   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
+   ```
+4. If any new HTML pages were added, ensure they are also listed as `COPY` instructions in the `Dockerfile` before deploying.
+5. Commit and push any local changes (including `Dockerfile` if modified) to GitHub using the full git path.
+
+---
+
 ## Project overview
 
 A personal landing page for Keith, served via Nginx inside a Docker container on a Synology NAS.
