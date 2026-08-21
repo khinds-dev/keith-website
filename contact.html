@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Keith Hinds</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: #ffffff;
+      color: #1f2328;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Nav bar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 2rem;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+    }
+
+    .navbar .site-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1f2328;
+      text-decoration: none;
+    }
+
+    .hamburger {
+      background: none;
+      border: 1px solid #e5e7eb;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.4rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 200;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #1f2328;
+      border-radius: 2px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 2rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      min-width: 180px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .nav-menu.open { display: block; }
+
+    .nav-menu a {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      color: #1f2328;
+      text-decoration: none;
+      border-bottom: 1px solid #f0f1f3;
+      transition: background 0.12s;
+    }
+
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: #f7f8fa; }
+    .nav-menu a.active { font-weight: 600; }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 3rem 2rem;
+    }
+
+    .contact-wrap {
+      max-width: 540px;
+      width: 100%;
+    }
+
+    .contact-wrap h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .contact-wrap .subtitle {
+      font-size: 0.9rem;
+      color: #57606a;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* ── Form ── */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color: #1f2328;
+    }
+
+    label .required {
+      color: #cf222e;
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #1f2328;
+      background: #ffffff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #3b82d4;
+      box-shadow: 0 0 0 3px rgba(59,130,212,0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 140px;
+      line-height: 1.6;
+    }
+
+    /* ── Submit ── */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-submit {
+      padding: 0.65rem 1.75rem;
+      background: #1f2328;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .btn-submit:hover { background: #3b4045; }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Status messages ── */
+    .msg {
+      display: none;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      padding: 0.65rem 1rem;
+      border-radius: 6px;
+      margin-top: 1.25rem;
+    }
+
+    .msg.success {
+      display: block;
+      background: #dafbe1;
+      border: 1px solid #74c584;
+      color: #1a7f37;
+    }
+
+    .msg.error {
+      display: block;
+      background: #ffebe9;
+      border: 1px solid #f7b8b2;
+      color: #cf222e;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid #e5e7eb;
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #57606a;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="site-name">Keith Hinds</a>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html">Home</a>
+      <a href="websites.html">Portfolio</a>
+      <a href="contact.html" class="active">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="contact-wrap">
+      <h1>Get in Touch</h1>
+      <p class="subtitle">
+        Have a question, idea, or just want to say hello? Fill in the form below and I'll get back to you.
+      </p>
+
+      <form id="contactForm" novalidate>
+        <div class="form-group">
+          <label for="name">Name <span class="required">*</span></label>
+          <input type="text" id="name" name="name" placeholder="Your name" required autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Subject</label>
+          <input type="text" id="subject" name="subject" placeholder="What's this about?" />
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message <span class="required">*</span></label>
+          <textarea id="message" name="message" placeholder="Write your message here…" required></textarea>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="btn-submit" id="submitBtn">Send Message</button>
+        </div>
+
+        <div class="msg success" id="successMsg">
+          ✓ Message sent! I'll get back to you as soon as I can.
+        </div>
+        <div class="msg error" id="errorMsg">
+          Something went wrong. Please try again or email me directly at
+          <a href="mailto:kman83@hotmail.co.uk" style="color:#cf222e;">kman83@hotmail.co.uk</a>.
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="yr"></span> Keith Hinds
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </footer>
+
+  <script>
+    /* ── Hamburger menu ── */
+    const btn = document.getElementById('menuBtn');
+    const menu = document.getElementById('navMenu');
+    btn.addEventListener('click', function () {
+      const isOpen = menu.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+    });
+    document.addEventListener('click', function (e) {
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', false);
+      }
+    });
+
+    /* ── Contact form — sends via Formspree ── */
+    // Using Formspree (https://formspree.io) — a free service that forwards
+    // form submissions to your email. Steps to activate:
+    //   1. Go to https://formspree.io and sign up (free).
+    //   2. Create a new form and set the destination email to kman83@hotmail.co.uk.
+    //   3. Replace YOUR_FORM_ID below with the ID Formspree gives you (e.g. "xwkgabcd").
+    const FORMSPREE_ID = 'YOUR_FORM_ID';
+
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      successMsg.style.display = 'none';
+      errorMsg.style.display = 'none';
+
+      // Basic validation
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      if (!name || !email || !message) {
+        errorMsg.textContent = 'Please fill in all required fields (Name, Email, Message).';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+
+      try {
+        const res = await fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: new FormData(form)
+        });
+
+        if (res.ok) {
+          form.reset();
+          successMsg.style.display = 'block';
+        } else {
+          throw new Error('Non-OK response');
+        }
+      } catch (_) {
+        errorMsg.textContent = '';
+        errorMsg.innerHTML = 'Something went wrong. Please try again or email me directly at '
+          + '<a href="mailto:kman83@hotmail.co.uk" style="color:#cf222e;">kman83@hotmail.co.uk</a>.';
+        errorMsg.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      }
+    });
+  </script>
+
+</body>
+</html>

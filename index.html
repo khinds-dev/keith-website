@@ -16,10 +16,83 @@
       flex-direction: column;
     }
 
+    /* ── Nav bar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 2rem;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+    }
+
+    .navbar .site-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1f2328;
+      text-decoration: none;
+    }
+
+    /* Hamburger button */
+    .hamburger {
+      background: none;
+      border: 1px solid #e5e7eb;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.4rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 200;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #1f2328;
+      border-radius: 2px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* Dropdown menu */
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 2rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      min-width: 180px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .nav-menu.open { display: block; }
+
+    .nav-menu a {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      color: #1f2328;
+      text-decoration: none;
+      border-bottom: 1px solid #f0f1f3;
+      transition: background 0.12s;
+    }
+
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: #f7f8fa; }
+    .nav-menu a.active { font-weight: 600; }
+
     /* ── Header / Hero ── */
     header {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 3.5rem 2rem 3rem;
+      padding: 3rem 2rem 2.5rem;
       display: flex;
       justify-content: center;
     }
@@ -193,6 +266,24 @@
       color: #1f2328;
     }
 
+    /* ── Get in touch button ── */
+    .contact-btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.6rem 1.5rem;
+      background: #1f2328;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .contact-btn:hover {
+      background: #3b4045;
+    }
+
     /* ── Footer ── */
     footer {
       border-top: 1px solid #e5e7eb;
@@ -214,6 +305,19 @@
   </style>
 </head>
 <body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="site-name">Keith Hinds</a>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html" class="active">Home</a>
+      <a href="websites.html">Portfolio</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
 
   <header>
     <div class="hero">
@@ -273,16 +377,14 @@
           </div>
           <a href="https://github.com/khinds-dev/keith-website" target="_blank" rel="noopener">View →</a>
         </div>
-        <!-- Add more projects here -->
       </section>
 
       <section>
         <h2>Get in touch</h2>
-        <p style="font-size:0.9rem; color:#57606a; line-height:1.7;">
-          The best way to reach me is via
-          <a href="https://github.com/khinds-dev" target="_blank" rel="noopener"
-             style="color:#1f2328; font-weight:500;">GitHub</a>.
+        <p style="font-size:0.9rem; color:#57606a; line-height:1.7; margin-bottom:1rem;">
+          Have a question or want to work together? Drop me a message.
         </p>
+        <a href="contact.html" class="contact-btn">Get in Touch</a>
       </section>
 
     </div>
@@ -292,6 +394,24 @@
     &copy; <span id="yr"></span> Keith Hinds
     <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
   </footer>
+
+  <script>
+    const btn = document.getElementById('menuBtn');
+    const menu = document.getElementById('navMenu');
+    btn.addEventListener('click', function () {
+      const isOpen = menu.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+    });
+    // Close menu when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', false);
+      }
+    });
+  </script>
 
 </body>
 </html>
