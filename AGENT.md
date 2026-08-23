@@ -12,7 +12,10 @@ When the user says anything like **"push to Synology"**, **"make my changes live
 1. Check which HTML/asset files exist locally (`*.html`, `profile.jpg`, etc.)
 2. Copy **all** site files to the Synology via SCP:
    ```powershell
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html websites.html contact.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "mkdir -p /volume1/docker/keith-website/portfolio /volume1/docker/keith-website/contact"
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/portfolio/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 contact/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/contact/index.html
    ```
 3. Rebuild and restart the Docker container:
    ```powershell
@@ -32,13 +35,20 @@ A personal landing page for Keith, served via Nginx inside a Docker container on
 ## Repository structure
 
 ```
-index.html         — the landing page (placeholder content, ready to be personalised)
-nginx.conf         — Nginx server config (serves static files on port 80 inside the container)
-Dockerfile         — builds an nginx:alpine image with the site baked in
-docker-compose.yml — runs the container, mapping port 8080 on the Synology to port 80 in the container
-README.md          — deployment instructions
-AGENT.md           — this file
+index.html              — the home page
+portfolio/index.html    — the Portfolio page (served at /portfolio)
+contact/index.html      — the Contact page (served at /contact)
+nginx.conf              — Nginx server config (serves static files on port 80 inside the container)
+Dockerfile              — builds an nginx:alpine image with the site baked in
+docker-compose.yml      — runs the container, mapping port 8080 on the Synology to port 80 in the container
+README.md               — deployment instructions
+AGENT.md                — this file
 ```
+
+### URL / file conventions
+- Each page lives in its own subdirectory as `index.html` so Nginx serves it at a clean URL (e.g. `/portfolio`, `/contact`).
+- When adding a new page, create `<page-name>/index.html`, add a `COPY` line to the Dockerfile, and add a nav link in all existing pages pointing to `/<page-name>`.
+- Never use `.html` extensions in `href` attributes — always use root-relative paths like `/portfolio`.
 
 ---
 

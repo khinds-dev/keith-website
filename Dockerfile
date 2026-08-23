@@ -8,8 +8,10 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy website files
 COPY index.html /usr/share/nginx/html/index.html
-COPY websites.html /usr/share/nginx/html/websites.html
-COPY contact.html /usr/share/nginx/html/contact.html
 COPY profile.jpg /usr/share/nginx/html/profile.jpg
+
+# Copy page directories (clean URLs: /portfolio, /contact)
+COPY portfolio/index.html /usr/share/nginx/html/portfolio/index.html
+COPY contact/index.html /usr/share/nginx/html/contact/index.html
 
 EXPOSE 80

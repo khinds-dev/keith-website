@@ -224,14 +224,14 @@
 <body>
 
   <nav class="navbar">
-    <a href="index.html" class="site-name">Keith Hinds</a>
+    <a href="/" class="site-name">Keith Hinds</a>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-menu" id="navMenu">
-      <a href="index.html">Home</a>
-      <a href="websites.html">Portfolio</a>
-      <a href="contact.html" class="active">Contact</a>
+      <a href="/">Home</a>
+      <a href="/portfolio">Portfolio</a>
+      <a href="/contact" class="active">Contact</a>
     </div>
   </nav>
 
@@ -301,11 +301,6 @@
     });
 
     /* ── Contact form — sends via Formspree ── */
-    // Using Formspree (https://formspree.io) — a free service that forwards
-    // form submissions to your email. Steps to activate:
-    //   1. Go to https://formspree.io and sign up (free).
-    //   2. Create a new form and set the destination email to kman83@hotmail.co.uk.
-    //   3. Replace YOUR_FORM_ID below with the ID Formspree gives you (e.g. "xwkgabcd").
     const FORMSPREE_ID = 'mppanpby';
 
     const form = document.getElementById('contactForm');
@@ -318,7 +313,6 @@
       successMsg.style.display = 'none';
       errorMsg.style.display = 'none';
 
-      // Basic validation
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const message = document.getElementById('message').value.trim();
