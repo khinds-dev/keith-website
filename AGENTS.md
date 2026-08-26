@@ -1,4 +1,4 @@
-# AGENT.md
+# AGENTS.md
 
 This file documents everything an AI agent needs to know to work effectively in this repository.
 
@@ -42,7 +42,7 @@ nginx.conf              — Nginx server config (serves static files on port 80 
 Dockerfile              — builds an nginx:alpine image with the site baked in
 docker-compose.yml      — runs the container, mapping port 8080 on the Synology to port 80 in the container
 README.md               — deployment instructions
-AGENT.md                — this file
+AGENTS.md               — this file
 ```
 
 ### URL / file conventions
@@ -64,7 +64,7 @@ AGENT.md                — this file
 | Docker path     | `/var/packages/ContainerManager/target/usr/bin/docker` |
 | Project path    | `/volume1/docker/keith-website/` |
 | Site URL (local)  | `http://100.123.139.84:8080`     |
-| Site URL (public) | `https://www.keithhinds.co.uk`   |
+| Site URL (public) | `https://keithhinds.co.uk` (apex) and `https://www.keithhinds.co.uk` (www) |
 | Container name  | `keith-website`        |
 | Tunnel container| `keith-cloudflared`    |
 
@@ -88,8 +88,28 @@ The site is exposed to the public internet via a Cloudflare Tunnel (`cloudflared
 | Tunnel name      | `synology` |
 | Token location   | hardcoded in `docker-compose.yml` under the `cloudflared` service `command:` |
 | Container name   | `keith-cloudflared` |
-| Public URL       | `https://www.keithhinds.co.uk` |
-| Public hostname  | configured in Cloudflare Zero Trust → Networks → Tunnels & Mesh → Synology KmanDS220 → Published application routes |
+| Tunnel name (dashboard) | `Synology KmanDS220` |
+| Public URLs      | `https://keithhinds.co.uk` and `https://www.keithhinds.co.uk` |
+| Public hostnames | configured in Cloudflare Zero Trust → Networks → Tunnels & Mesh → Synology KmanDS220 → **Published application routes** |
+
+### Published application routes
+
+Both the apex and www hostnames must have a route saved in the **Published application routes** tab of the tunnel. As of the current setup there are two routes:
+
+| Subdomain | Domain | Service |
+|-----------|--------|---------|
+| *(blank)* | `keithhinds.co.uk` | `HTTP keith-website:80` |
+| `www` | `keithhinds.co.uk` | `HTTP keith-website:80` |
+
+> ⚠️ **Important — token-based tunnel quirk:** Because the tunnel runs via a token (not a config file), routes are managed entirely through the Cloudflare dashboard. The `cloudflared` container has no local `config.yml`. If routes are missing, the tunnel returns 404 for all requests regardless of what DNS records exist.
+
+> ⚠️ **Adding a new route when the DNS record already exists:** Cloudflare will show "A DNS record with this name already exists" and block the route creation. The workaround is:
+> 1. Delete the existing DNS record for that hostname in **DNS → Records**
+> 2. Immediately switch to **Published application routes** and save the new route
+> 3. Cloudflare will auto-recreate the DNS record correctly linked to the tunnel
+> 4. If the DNS record is still missing afterwards, add it manually as a `CNAME` with name `@` (for apex) or `www`, target `a7eb6006-0c73-413a-aee0-ed634e6e1f04.cfargotunnel.com`, proxied.
+
+> ⚠️ **Tunnel ID:** `a7eb6006-0c73-413a-aee0-ed634e6e1f04` — encoded in the token in `docker-compose.yml`. The cfargotunnel hostname is `a7eb6006-0c73-413a-aee0-ed634e6e1f04.cfargotunnel.com`.
 
 ### Check tunnel logs
 ```powershell
