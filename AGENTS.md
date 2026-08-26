@@ -183,11 +183,13 @@ To add or change the public URL (e.g. point `www.yourdomain.com` at the site):
 
 ## Git / GitHub
 
-| Property   | Value                                      |
-|------------|--------------------------------------------|
-| Remote     | `github.com:khinds-dev/keith-website.git` |
-| Branch     | `main`                                     |
-| Git binary | `C:\Program Files\Git\bin\git.exe`        |
+| Property       | Value                                      |
+|----------------|--------------------------------------------|
+| Remote         | `github.com:khinds-dev/keith-website.git` |
+| Branch         | `main`                                     |
+| Git binary     | `C:\Program Files\Git\bin\git.exe`        |
+| Configured user| `Keith Hinds`                              |
+| Configured email| `kman83@hotmail.co.uk`                    |
 
 ### Push changes
 ```powershell
@@ -196,6 +198,20 @@ To add or change the public URL (e.g. point `www.yourdomain.com` at the site):
 & "C:\Program Files\Git\bin\git.exe" push origin main
 ```
 > `git` is not on the system PATH in the agent shell — always use the full path above.
+
+### Commit author & GitHub contributions
+- The primary GitHub account for this project is `khinds-dev`.
+- All commits in this repo must use `Keith Hinds <kman83@hotmail.co.uk>` so GitHub links them to the `khinds-dev` profile contribution calendar.
+- If the repository is private, ensure **"Private contributions"** is enabled in the contribution settings on [github.com/khinds-dev](https://github.com/khinds-dev) for contributions to show publicly.
+
+---
+
+## GitHub Activity Widget
+
+The landing page features a GitHub activity contribution widget:
+- **Service**: `https://ghchart.rshah.org/khinds-dev` (renders GitHub-style SVG heatmap with multi-tier green colors `#eeeeee`, `#d6e685`, `#8cc665`, `#44a340`, `#1e6823`).
+- **Cache-busting**: [`index.html`](index.html:454) includes a client-side script running on load that appends `?ts=` timestamp to the image `src` to bypass browser caching.
+- **Backend caching**: The external chart generator (`ghchart.rshah.org`) caches responses upstream on its servers for several hours before re-scraping GitHub.
 
 ---
 
