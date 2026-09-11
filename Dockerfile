@@ -13,5 +13,6 @@ COPY profile.jpg /usr/share/nginx/html/profile.jpg
 # Copy page directories (clean URLs: /portfolio, /contact)
 COPY portfolio/index.html /usr/share/nginx/html/portfolio/index.html
 COPY contact/index.html /usr/share/nginx/html/contact/index.html
+COPY repos/index.html /usr/share/nginx/html/repos/index.html
 
 EXPOSE 80
