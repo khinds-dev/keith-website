@@ -97,7 +97,7 @@
     }
 
     .content {
-      max-width: 760px;
+      max-width: 960px;
       width: 100%;
     }
 
@@ -113,40 +113,67 @@
       margin-bottom: 2.5rem;
     }
 
-    /* ── Post list ── */
-    .post-list {
+    /* ── Tile grid ── */
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .post-tile {
       display: flex;
       flex-direction: column;
-      gap: 0;
-    }
-
-    .post-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 1rem;
-      padding: 1rem 0;
-      border-bottom: 1px solid #e5e7eb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
       text-decoration: none;
       color: inherit;
+      background: #ffffff;
+      transition: border-color 0.12s;
     }
 
-    .post-item:first-child { border-top: 1px solid #e5e7eb; }
+    .post-tile:hover { border-color: #1f2328; }
 
-    .post-item:hover .post-title { color: #0969da; }
+    .post-tile-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+      background: #f7f8fa;
+    }
 
-    .post-title {
+    .post-tile-no-image {
+      width: 100%;
+      height: 160px;
+      background: #f7f8fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c0c4cc;
+    }
+
+    .post-tile-no-image svg { opacity: 0.4; }
+
+    .post-tile-body {
+      padding: 1rem 1.1rem 1.1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .post-tile-title {
       font-size: 0.95rem;
       font-weight: 600;
       color: #1f2328;
-      transition: color 0.12s;
+      line-height: 1.35;
     }
 
-    .post-date {
-      font-size: 0.8rem;
+    .post-tile-date {
+      font-size: 0.78rem;
       color: #57606a;
-      white-space: nowrap;
-      flex-shrink: 0;
+      margin-top: auto;
+      padding-top: 0.5rem;
     }
 
     /* ── States ── */
@@ -200,7 +227,7 @@
       <h1>Blog</h1>
       <p class="subtitle">Writing on software engineering, tools, and ideas.</p>
 
-      <div id="postList" class="post-list">
+      <div id="postList" class="post-grid">
         <div class="loading">Loading posts…</div>
       </div>
     </div>
@@ -227,12 +254,22 @@
       }
     });
 
+    var IMAGE_PLACEHOLDER =
+      '<div class="post-tile-no-image">' +
+        '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#9ca3af" stroke-width="1.5">' +
+          '<rect x="3" y="3" width="18" height="18" rx="2"/>' +
+          '<circle cx="8.5" cy="8.5" r="1.5"/>' +
+          '<path d="m21 15-5-5L5 21"/>' +
+        '</svg>' +
+      '</div>';
+
     // Load posts
     fetch('/api/posts')
       .then(function (r) { return r.json(); })
       .then(function (posts) {
         var container = document.getElementById('postList');
         if (!posts.length) {
+          container.className = '';
           container.innerHTML = '<div class="empty-state">No posts yet — check back soon.</div>';
           return;
         }
@@ -240,19 +277,29 @@
           var date = new Date(p.created_at).toLocaleDateString('en-GB', {
             day: 'numeric', month: 'short', year: 'numeric'
           });
-          return '<a class="post-item" href="/blog/post?slug=' + encodeURIComponent(p.slug) + '">' +
-            '<span class="post-title">' + escHtml(p.title) + '</span>' +
-            '<span class="post-date">' + date + '</span>' +
+          var imgHtml = p.cover_image
+            ? '<img class="post-tile-image" src="' + escAttr(p.cover_image) + '" alt="" loading="lazy" />'
+            : IMAGE_PLACEHOLDER;
+          return '<a class="post-tile" href="/blog/post?slug=' + encodeURIComponent(p.slug) + '">' +
+            imgHtml +
+            '<div class="post-tile-body">' +
+              '<div class="post-tile-title">' + escHtml(p.title) + '</div>' +
+              '<div class="post-tile-date">' + date + '</div>' +
+            '</div>' +
             '</a>';
         }).join('');
       })
       .catch(function () {
-        document.getElementById('postList').innerHTML =
-          '<div class="empty-state">Could not load posts.</div>';
+        var container = document.getElementById('postList');
+        container.className = '';
+        container.innerHTML = '<div class="empty-state">Could not load posts.</div>';
       });
 
     function escHtml(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(s) {
+      return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
     }
   </script>
 

@@ -5,6 +5,7 @@ const Database = require('better-sqlite3');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 
 const app = express();
 app.use(express.json());
@@ -14,24 +15,50 @@ const PORT        = process.env.PORT        || 3000;
 const ADMIN_PASS  = process.env.ADMIN_PASS  || 'changeme';
 const JWT_SECRET  = process.env.JWT_SECRET  || 'changeme-secret';
 const DB_PATH     = process.env.DB_PATH     || '/data/posts.db';
+const IMAGES_DIR  = process.env.IMAGES_DIR  || '/data/images';
 
 // ── Database setup ────────────────────────────────────────────────────────────
 const dbDir = path.dirname(DB_PATH);
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
 
 const db = new Database(DB_PATH);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS posts (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    title     TEXT    NOT NULL,
-    slug      TEXT    NOT NULL UNIQUE,
-    body      TEXT    NOT NULL DEFAULT '',
-    published INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT   NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT   NOT NULL DEFAULT (datetime('now'))
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    title       TEXT    NOT NULL,
+    slug        TEXT    NOT NULL UNIQUE,
+    body        TEXT    NOT NULL DEFAULT '',
+    cover_image TEXT,
+    published   INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   )
 `);
+
+// Migrate: add cover_image column if upgrading from old schema
+try {
+  db.exec('ALTER TABLE posts ADD COLUMN cover_image TEXT');
+} catch (_) { /* column already exists */ }
+
+// ── Multer (image uploads) ────────────────────────────────────────────────────
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, IMAGES_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    const name = 'post-' + req.params.id + '-' + Date.now() + ext;
+    cb(null, name);
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/^image\/(jpeg|png|gif|webp)$/.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Only JPEG, PNG, GIF or WebP images are allowed'));
+  }
+});
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
@@ -70,7 +97,7 @@ app.post('/api/login', (req, res) => {
 // GET /api/posts  — public, returns published posts only
 app.get('/api/posts', (req, res) => {
   const posts = db
-    .prepare('SELECT id, title, slug, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
+    .prepare('SELECT id, title, slug, cover_image, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
     .all();
   res.json(posts);
 });
@@ -78,7 +105,7 @@ app.get('/api/posts', (req, res) => {
 // GET /api/posts/all  — admin, returns all posts
 app.get('/api/posts/all', requireAuth, (req, res) => {
   const posts = db
-    .prepare('SELECT id, title, slug, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
+    .prepare('SELECT id, title, slug, cover_image, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
     .all();
   res.json(posts);
 });
@@ -86,7 +113,7 @@ app.get('/api/posts/all', requireAuth, (req, res) => {
 // GET /api/posts/:slug  — public, returns a single published post by slug
 app.get('/api/posts/:slug', (req, res) => {
   const post = db
-    .prepare('SELECT id, title, slug, body, created_at FROM posts WHERE slug = ? AND published = 1')
+    .prepare('SELECT id, title, slug, body, cover_image, created_at FROM posts WHERE slug = ? AND published = 1')
     .get(req.params.slug);
   if (!post) return res.status(404).json({ error: 'Not found' });
   res.json(post);
@@ -136,6 +163,52 @@ app.delete('/api/posts/:id', requireAuth, (req, res) => {
   const info = db.prepare('DELETE FROM posts WHERE id = ?').run(req.params.id);
   if (info.changes === 0) return res.status(404).json({ error: 'Not found' });
   res.json({ deleted: true });
+});
+
+// POST /api/posts/:id/image  — admin, upload cover image
+app.post('/api/posts/:id/image', requireAuth, (req, res) => {
+  const existing = db.prepare('SELECT * FROM posts WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+
+  upload.single('image')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'No image file provided' });
+
+    // Delete old image file if it exists
+    if (existing.cover_image) {
+      const oldFile = path.join(IMAGES_DIR, path.basename(existing.cover_image));
+      if (fs.existsSync(oldFile)) fs.unlink(oldFile, () => {});
+    }
+
+    const imageUrl = '/api/images/' + req.file.filename;
+    db.prepare(`UPDATE posts SET cover_image = ?, updated_at = datetime('now') WHERE id = ?`)
+      .run(imageUrl, req.params.id);
+
+    res.json({ cover_image: imageUrl });
+  });
+});
+
+// DELETE /api/posts/:id/image  — admin, remove cover image
+app.delete('/api/posts/:id/image', requireAuth, (req, res) => {
+  const existing = db.prepare('SELECT * FROM posts WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+
+  if (existing.cover_image) {
+    const file = path.join(IMAGES_DIR, path.basename(existing.cover_image));
+    if (fs.existsSync(file)) fs.unlink(file, () => {});
+  }
+
+  db.prepare(`UPDATE posts SET cover_image = NULL, updated_at = datetime('now') WHERE id = ?`)
+    .run(req.params.id);
+
+  res.json({ deleted: true });
+});
+
+// GET /api/images/:filename  — public, serve uploaded images
+app.get('/api/images/:filename', (req, res) => {
+  const file = path.join(IMAGES_DIR, path.basename(req.params.filename));
+  if (!fs.existsSync(file)) return res.status(404).json({ error: 'Not found' });
+  res.sendFile(file);
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
