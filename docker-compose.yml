@@ -5,6 +5,20 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+    depends_on:
+      - api
+
+  api:
+    build: ./api
+    container_name: keith-api
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - ADMIN_PASS=${ADMIN_PASS:-changeme}
+      - JWT_SECRET=${JWT_SECRET:-changeme-secret}
+      - DB_PATH=/data/posts.db
+    volumes:
+      - blog_data:/data
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -13,3 +27,6 @@ services:
     command: tunnel --no-autoupdate run --token eyJhIjoiMzZhZGViZjUyYjM5ZTkyMGIzMGY0NzI0ZjlkYmIyMWIiLCJ0IjoiYTdlYjYwMDYtMGM3My00MTNhLWFlZTAtZWQ2MzRlNmUxZjA0IiwicyI6IllUQTBabUkxTXpVdFl6UTNZUzAwTkdKa0xUZ3lZemt0TldJM01UVXlaak0xWlRnNCJ9
     depends_on:
       - web
+
+volumes:
+  blog_data:

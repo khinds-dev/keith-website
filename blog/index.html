@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Keith Hinds</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: #ffffff;
+      color: #1f2328;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Nav bar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 2rem;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+    }
+
+    .navbar .site-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1f2328;
+      text-decoration: none;
+    }
+
+    .hamburger {
+      background: none;
+      border: 1px solid #e5e7eb;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.4rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 200;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #1f2328;
+      border-radius: 2px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 2rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      min-width: 180px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .nav-menu.open { display: block; }
+
+    .nav-menu a {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      color: #1f2328;
+      text-decoration: none;
+      border-bottom: 1px solid #f0f1f3;
+      transition: background 0.12s;
+    }
+
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: #f7f8fa; }
+    .nav-menu a.active { font-weight: 600; }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .content {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #57606a;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Post list ── */
+    .post-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .post-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid #e5e7eb;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .post-item:first-child { border-top: 1px solid #e5e7eb; }
+
+    .post-item:hover .post-title { color: #0969da; }
+
+    .post-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1f2328;
+      transition: color 0.12s;
+    }
+
+    .post-date {
+      font-size: 0.8rem;
+      color: #57606a;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── States ── */
+    .empty-state {
+      padding: 3rem 0;
+      text-align: center;
+      color: #57606a;
+      font-size: 0.9rem;
+    }
+
+    .loading {
+      padding: 3rem 0;
+      text-align: center;
+      color: #57606a;
+      font-size: 0.9rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #57606a;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 560px) {
+      main { padding: 2rem 1.25rem; }
+      .navbar { padding: 0.75rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="site-name">Keith Hinds</a>
+    <button class="hamburger" id="menuBtn" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-menu" id="navMenu" role="navigation">
+      <a href="/">Home</a>
+      <a href="/portfolio">Portfolio</a>
+      <a href="/blog" class="active">Blog</a>
+      <a href="/contact">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="content">
+      <h1>Blog</h1>
+      <p class="subtitle">Writing on software engineering, tools, and ideas.</p>
+
+      <div id="postList" class="post-list">
+        <div class="loading">Loading posts…</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>&copy; <span id="yr"></span> Keith Hinds</footer>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Nav toggle
+    const btn = document.getElementById('menuBtn');
+    const menu = document.getElementById('navMenu');
+    btn.addEventListener('click', function () {
+      const isOpen = menu.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+    });
+    document.addEventListener('click', function (e) {
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', false);
+      }
+    });
+
+    // Load posts
+    fetch('/api/posts')
+      .then(function (r) { return r.json(); })
+      .then(function (posts) {
+        var container = document.getElementById('postList');
+        if (!posts.length) {
+          container.innerHTML = '<div class="empty-state">No posts yet — check back soon.</div>';
+          return;
+        }
+        container.innerHTML = posts.map(function (p) {
+          var date = new Date(p.created_at).toLocaleDateString('en-GB', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          });
+          return '<a class="post-item" href="/blog/post?slug=' + encodeURIComponent(p.slug) + '">' +
+            '<span class="post-title">' + escHtml(p.title) + '</span>' +
+            '<span class="post-date">' + date + '</span>' +
+            '</a>';
+        }).join('');
+      })
+      .catch(function () {
+        document.getElementById('postList').innerHTML =
+          '<div class="empty-state">Could not load posts.</div>';
+      });
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+
+</body>
+</html>

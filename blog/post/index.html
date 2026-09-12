@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post — Keith Hinds</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: #ffffff;
+      color: #1f2328;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Nav bar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 2rem;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+    }
+
+    .navbar .site-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1f2328;
+      text-decoration: none;
+    }
+
+    .hamburger {
+      background: none;
+      border: 1px solid #e5e7eb;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.4rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 200;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #1f2328;
+      border-radius: 2px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 2rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      min-width: 180px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .nav-menu.open { display: block; }
+
+    .nav-menu a {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      color: #1f2328;
+      text-decoration: none;
+      border-bottom: 1px solid #f0f1f3;
+      transition: background 0.12s;
+    }
+
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: #f7f8fa; }
+    .nav-menu a.active { font-weight: 600; }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .content {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    /* ── Back link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      color: #57606a;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color 0.12s;
+    }
+
+    .back-link:hover { color: #1f2328; }
+
+    /* ── Post header ── */
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .post-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+    }
+
+    .post-meta {
+      font-size: 0.82rem;
+      color: #57606a;
+    }
+
+    /* ── Post body ── */
+    .post-body {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: #1f2328;
+    }
+
+    .post-body p { margin-bottom: 1.25rem; }
+    .post-body h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
+    .post-body h3 { font-size: 1rem; margin: 1.5rem 0 0.5rem; }
+    .post-body ul, .post-body ol { margin: 0.75rem 0 1.25rem 1.5rem; }
+    .post-body li { margin-bottom: 0.35rem; }
+    .post-body code {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 0.1em 0.35em;
+      font-size: 0.88em;
+      font-family: ui-monospace, "Cascadia Code", monospace;
+    }
+    .post-body pre {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin-bottom: 1.25rem;
+    }
+    .post-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.875rem;
+    }
+    .post-body blockquote {
+      border-left: 3px solid #e5e7eb;
+      padding-left: 1rem;
+      color: #57606a;
+      margin: 1rem 0 1.25rem;
+    }
+    .post-body a { color: #0969da; }
+    .post-body a:hover { text-decoration: none; }
+
+    /* ── States ── */
+    .error-state {
+      padding: 3rem 0;
+      text-align: center;
+      color: #57606a;
+      font-size: 0.9rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #57606a;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 560px) {
+      main { padding: 2rem 1.25rem; }
+      .navbar { padding: 0.75rem 1.25rem; }
+      .post-header h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="site-name">Keith Hinds</a>
+    <button class="hamburger" id="menuBtn" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-menu" id="navMenu" role="navigation">
+      <a href="/">Home</a>
+      <a href="/portfolio">Portfolio</a>
+      <a href="/blog" class="active">Blog</a>
+      <a href="/contact">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="content">
+      <a href="/blog" class="back-link">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+          <path d="M7.78 12.53a.75.75 0 0 1-1.06 0L2.47 8.28a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L4.81 7h7.44a.75.75 0 0 1 0 1.5H4.81l2.97 2.97a.75.75 0 0 1 0 1.06z"/>
+        </svg>
+        Back to blog
+      </a>
+
+      <div id="postContent">
+        <div class="error-state">Loading…</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>&copy; <span id="yr"></span> Keith Hinds</footer>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Nav toggle
+    const btn = document.getElementById('menuBtn');
+    const menu = document.getElementById('navMenu');
+    btn.addEventListener('click', function () {
+      const isOpen = menu.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+    });
+    document.addEventListener('click', function (e) {
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', false);
+      }
+    });
+
+    // Simple Markdown-ish renderer (paragraphs, headings, code, bold, italic, lists)
+    function renderMarkdown(md) {
+      var html = md
+        // Escape HTML first
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        // Fenced code blocks
+        .replace(/```[\s\S]*?```/g, function (m) {
+          var inner = m.slice(3, -3).replace(/^\w*\n/, '');
+          return '<pre><code>' + inner + '</code></pre>';
+        })
+        // Headings
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        // Bold & italic
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        // Inline code
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Blockquote
+        .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+        // Unordered list items
+        .replace(/^\s*[-*] (.+)$/gm, '<li>$1</li>')
+        // Wrap consecutive <li> in <ul>
+        .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>')
+        // Links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+        // Paragraphs (lines not already block elements)
+        .split(/\n{2,}/)
+        .map(function (block) {
+          block = block.trim();
+          if (!block) return '';
+          if (/^<(h[1-6]|ul|ol|li|pre|blockquote)/.test(block)) return block;
+          return '<p>' + block.replace(/\n/g, ' ') + '</p>';
+        })
+        .join('\n');
+      return html;
+    }
+
+    // Read slug from query string
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug');
+
+    if (!slug) {
+      document.getElementById('postContent').innerHTML =
+        '<div class="error-state">No post specified.</div>';
+    } else {
+      fetch('/api/posts/' + encodeURIComponent(slug))
+        .then(function (r) {
+          if (!r.ok) throw new Error('not found');
+          return r.json();
+        })
+        .then(function (post) {
+          document.title = post.title + ' — Keith Hinds';
+          var date = new Date(post.created_at).toLocaleDateString('en-GB', {
+            day: 'numeric', month: 'long', year: 'numeric'
+          });
+          document.getElementById('postContent').innerHTML =
+            '<div class="post-header">' +
+              '<h1>' + escHtml(post.title) + '</h1>' +
+              '<div class="post-meta">' + date + '</div>' +
+            '</div>' +
+            '<div class="post-body">' + renderMarkdown(post.body) + '</div>';
+        })
+        .catch(function () {
+          document.getElementById('postContent').innerHTML =
+            '<div class="error-state">Post not found.</div>';
+        });
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+
+</body>
+</html>

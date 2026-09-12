@@ -1,0 +1,144 @@
+'use strict';
+
+const express = require('express');
+const Database = require('better-sqlite3');
+const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs');
+
+const app = express();
+app.use(express.json());
+
+// ── Config ────────────────────────────────────────────────────────────────────
+const PORT        = process.env.PORT        || 3000;
+const ADMIN_PASS  = process.env.ADMIN_PASS  || 'changeme';
+const JWT_SECRET  = process.env.JWT_SECRET  || 'changeme-secret';
+const DB_PATH     = process.env.DB_PATH     || '/data/posts.db';
+
+// ── Database setup ────────────────────────────────────────────────────────────
+const dbDir = path.dirname(DB_PATH);
+if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+
+const db = new Database(DB_PATH);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS posts (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    title     TEXT    NOT NULL,
+    slug      TEXT    NOT NULL UNIQUE,
+    body      TEXT    NOT NULL DEFAULT '',
+    published INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT   NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT   NOT NULL DEFAULT (datetime('now'))
+  )
+`);
+
+// ── Auth middleware ───────────────────────────────────────────────────────────
+function requireAuth(req, res, next) {
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Unauthorised' });
+  try {
+    jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+// ── Slug helper ───────────────────────────────────────────────────────────────
+function toSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+// ── Routes ────────────────────────────────────────────────────────────────────
+
+// POST /api/login
+app.post('/api/login', (req, res) => {
+  const { password } = req.body || {};
+  if (password !== ADMIN_PASS) {
+    return res.status(401).json({ error: 'Wrong password' });
+  }
+  const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '8h' });
+  res.json({ token });
+});
+
+// GET /api/posts  — public, returns published posts only
+app.get('/api/posts', (req, res) => {
+  const posts = db
+    .prepare('SELECT id, title, slug, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
+    .all();
+  res.json(posts);
+});
+
+// GET /api/posts/all  — admin, returns all posts
+app.get('/api/posts/all', requireAuth, (req, res) => {
+  const posts = db
+    .prepare('SELECT id, title, slug, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
+    .all();
+  res.json(posts);
+});
+
+// GET /api/posts/:slug  — public, returns a single published post by slug
+app.get('/api/posts/:slug', (req, res) => {
+  const post = db
+    .prepare('SELECT id, title, slug, body, created_at FROM posts WHERE slug = ? AND published = 1')
+    .get(req.params.slug);
+  if (!post) return res.status(404).json({ error: 'Not found' });
+  res.json(post);
+});
+
+// POST /api/posts  — admin, create a post
+app.post('/api/posts', requireAuth, (req, res) => {
+  const { title, body = '', published = 0 } = req.body || {};
+  if (!title) return res.status(400).json({ error: 'title is required' });
+
+  const slug = toSlug(title);
+  try {
+    const info = db
+      .prepare('INSERT INTO posts (title, slug, body, published) VALUES (?, ?, ?, ?)')
+      .run(title, slug, body, published ? 1 : 0);
+    res.status(201).json({ id: info.lastInsertRowid, slug });
+  } catch (e) {
+    if (e.message.includes('UNIQUE')) {
+      return res.status(409).json({ error: 'A post with that title already exists' });
+    }
+    throw e;
+  }
+});
+
+// PUT /api/posts/:id  — admin, update a post
+app.put('/api/posts/:id', requireAuth, (req, res) => {
+  const { title, body, published } = req.body || {};
+  const existing = db.prepare('SELECT * FROM posts WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+
+  const newTitle     = title     !== undefined ? title     : existing.title;
+  const newBody      = body      !== undefined ? body      : existing.body;
+  const newPublished = published !== undefined ? (published ? 1 : 0) : existing.published;
+  const newSlug      = title     !== undefined ? toSlug(title) : existing.slug;
+
+  db.prepare(`
+    UPDATE posts
+    SET title = ?, slug = ?, body = ?, published = ?, updated_at = datetime('now')
+    WHERE id = ?
+  `).run(newTitle, newSlug, newBody, newPublished, req.params.id);
+
+  res.json({ id: Number(req.params.id), slug: newSlug });
+});
+
+// DELETE /api/posts/:id  — admin, delete a post
+app.delete('/api/posts/:id', requireAuth, (req, res) => {
+  const info = db.prepare('DELETE FROM posts WHERE id = ?').run(req.params.id);
+  if (info.changes === 0) return res.status(404).json({ error: 'Not found' });
+  res.json({ deleted: true });
+});
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`keith-api listening on port ${PORT}`);
+});
