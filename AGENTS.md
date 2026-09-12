@@ -13,24 +13,47 @@ This file provides guidance to agents when working with code in this repository.
 - **Routing**: Static vanilla HTML/CSS/JS served via `nginx:alpine`. Clean URLs are implemented via subdirectories containing `index.html` (e.g. `portfolio/index.html` served at `/portfolio`). Never use `.html` extensions in `href`.
 - **New pages**: Whenever adding `<page-name>/index.html`, explicitly add a `COPY <page-name>/index.html ...` line to [`Dockerfile`](Dockerfile:14).
 - **GitHub Activity Widget**: Uses `https://ghchart.rshah.org/khinds-dev` with client-side cache-busting timestamp `?ts=` in [`index.html`](index.html:457). Requires "Private contributions" enabled on GitHub if repository is private.
+- **Services**: The stack has two containers — `keith-website` (nginx, static HTML) and `keith-api` (Node.js/Express, port 3000). nginx proxies all `/api/*` requests to `keith-api:3000`. A third container `keith-cloudflared` handles the Cloudflare tunnel.
+- **Blog API**: Posts are stored in a SQLite DB at `/data/posts.db` (Docker volume `blog_data`). Uploaded images are stored at `/data/images/` on the same volume and served via `GET /api/images/:filename`. Always include `body` in any admin `SELECT` query on posts — omitting it causes `undefined` to appear in the editor textarea.
 
-## Deployment to Synology NAS (`100.123.139.84`)
-When asked to **deploy**, **push**, or **make changes live**:
-1. Copy static files & directories via legacy SCP (`-O` is required, `-P 83`):
-   ```powershell
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
-   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "mkdir -p /volume1/docker/keith-website/portfolio /volume1/docker/keith-website/contact"
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/portfolio/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 contact/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/contact/index.html
-   ```
-2. Rebuild & restart Docker container (requires passwordless sudo rule on Synology and full docker path):
-   ```powershell
-   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
-   ```
-3. Commit and push to GitHub:
+## Navigation
+- Every page (Home, Portfolio, Repos, Blog, Contact) must include all five nav links in the hamburger menu, with the current page marked `class="active"`.
+- The `/admin` page is intentionally excluded from public navigation.
+- When adding or editing nav menus, update **all** page files to keep them consistent.
+
+## Deployment Order
+**Always follow this order — commit first, then deploy:**
+1. **Commit and push to GitHub first:**
    ```powershell
    & "C:\Program Files\Git\bin\git.exe" add -A ; if ($?) { & "C:\Program Files\Git\bin\git.exe" commit -m "..." } ; if ($?) { & "C:\Program Files\Git\bin\git.exe" push origin main }
    ```
+2. **Copy changed files to Synology** via legacy SCP (`-O` is required, `-P 83`). Copy only the files that changed. Common files:
+   ```powershell
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/portfolio/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 contact/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/contact/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 repos/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/repos/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 blog/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/blog/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 blog/post/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/blog/post/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 admin/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/admin/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 api/server.js api/package.json keithhinds@100.123.139.84:/volume1/docker/keith-website/api/
+   ```
+3. **Create any new remote directories** before copying into them:
+   ```powershell
+   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "mkdir -p /volume1/docker/keith-website/<new-dir>"
+   ```
+4. **Rebuild & restart Docker containers** (requires passwordless sudo rule on Synology):
+   ```powershell
+   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
+   ```
+
+## Browser Caching
+After deploying, changes may not be visible due to browser caching. Advise the user to hard refresh (`Ctrl+Shift+R`) or open an incognito window. If content is confirmed present via `curl` on the server but not visible in browser, it is always a cache issue.
+
+To verify content is actually live before concluding the user has a cache issue:
+```powershell
+& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "curl -sL http://localhost:8080/<path>/ | head -10"
+```
 
 ## Cloudflare Tunnel Gotchas
 - Token-based tunnel (`keith-cloudflared` container, ID `a7eb6006-0c73-413a-aee0-ed634e6e1f04`).
