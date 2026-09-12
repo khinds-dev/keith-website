@@ -105,7 +105,7 @@ app.get('/api/posts', (req, res) => {
 // GET /api/posts/all  — admin, returns all posts
 app.get('/api/posts/all', requireAuth, (req, res) => {
   const posts = db
-    .prepare('SELECT id, title, slug, cover_image, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
+    .prepare('SELECT id, title, slug, body, cover_image, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
     .all();
   res.json(posts);
 });
