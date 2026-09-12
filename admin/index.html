@@ -343,7 +343,10 @@
   <!-- Admin screen -->
   <div id="adminScreen">
     <div class="admin-header">
-      <span class="title">Blog Admin</span>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <a href="/" class="btn btn-outline">← Home</a>
+        <span class="title">Blog Admin</span>
+      </div>
       <button class="btn btn-outline" id="logoutBtn">Sign out</button>
     </div>
     <div class="admin-body">
@@ -415,8 +418,7 @@
     document.getElementById('logoutBtn').addEventListener('click', function () {
       token = '';
       sessionStorage.removeItem('admin_token');
-      document.getElementById('adminScreen').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
+      window.location.href = '/';
     });
 
     // ── Show admin ─────────────────────────────────────────────────────────────
