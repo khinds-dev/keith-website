@@ -21,7 +21,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.75rem 2rem;
+      padding: 0 2rem;
+      height: 52px;
       border-bottom: 1px solid #e5e7eb;
       position: relative;
     }
@@ -31,15 +32,36 @@
       font-size: 0.95rem;
       color: #1f2328;
       text-decoration: none;
+      flex-shrink: 0;
     }
 
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .nav-links a {
+      font-size: 0.88rem;
+      color: #57606a;
+      text-decoration: none;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover { background: #f7f8fa; color: #1f2328; }
+    .nav-links a.active { font-weight: 600; color: #1f2328; }
+
+    /* Hamburger — mobile only */
     .hamburger {
+      display: none;
       background: none;
       border: 1px solid #e5e7eb;
       border-radius: 5px;
       cursor: pointer;
       padding: 0.4rem 0.5rem;
-      display: flex;
       flex-direction: column;
       gap: 4px;
       z-index: 200;
@@ -58,35 +80,28 @@
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
-    .nav-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 4px);
-      right: 2rem;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      min-width: 180px;
-      z-index: 100;
-      overflow: hidden;
+    @media (max-width: 640px) {
+      .hamburger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 52px;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e7eb;
+        flex-direction: column;
+        padding: 0.5rem 0;
+        z-index: 100;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a {
+        padding: 0.75rem 2rem;
+        border-radius: 0;
+        border-bottom: 1px solid #f0f1f3;
+      }
+      .nav-links a:last-child { border-bottom: none; }
     }
-
-    .nav-menu.open { display: block; }
-
-    .nav-menu a {
-      display: block;
-      padding: 0.75rem 1.25rem;
-      font-size: 0.9rem;
-      color: #1f2328;
-      text-decoration: none;
-      border-bottom: 1px solid #f0f1f3;
-      transition: background 0.12s;
-    }
-
-    .nav-menu a:last-child { border-bottom: none; }
-    .nav-menu a:hover { background: #f7f8fa; }
-    .nav-menu a.active { font-weight: 600; }
 
     /* ── Main ── */
     main {
@@ -222,16 +237,16 @@
 
   <nav class="navbar">
     <a href="/" class="site-name">Keith Hinds</a>
-    <button class="hamburger" id="menuBtn" aria-label="Toggle navigation" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="nav-menu" id="navMenu" role="navigation">
+    <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
       <a href="/portfolio">Portfolio</a>
       <a href="/repos">Repos</a>
       <a href="/blog" class="active">Blog</a>
       <a href="/contact">Contact</a>
     </div>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
 
   <main>
@@ -256,7 +271,7 @@
 
     // Nav toggle
     const btn = document.getElementById('menuBtn');
-    const menu = document.getElementById('navMenu');
+    const menu = document.getElementById('navLinks');
     btn.addEventListener('click', function () {
       const isOpen = menu.classList.toggle('open');
       btn.classList.toggle('open', isOpen);
