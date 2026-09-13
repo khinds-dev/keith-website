@@ -21,13 +21,22 @@ This file provides guidance to agents when working with code in this repository.
 - The `/admin` page is intentionally excluded from public navigation.
 - When adding or editing nav menus, update **all** page files to keep them consistent.
 
+## Git Workflow Rules
+- **Always `git pull` before making any changes.** Run `git pull origin main` at the start of every session and before starting any new task. This prevents merge conflicts caused by external commits.
+- **Never use `git checkout --theirs` or `git checkout --ours` to resolve merge conflicts** — these silently discard one side's changes entirely. Always inspect the conflict manually, keep both sides' intended changes, then `git add` and continue.
+- **Rebase conflicts during `git pull --rebase`**: if a conflict occurs, read the conflicted file carefully, merge the changes by hand, then `git add <file> && GIT_EDITOR=true git rebase --continue`.
+
 ## Deployment Order
-**Always follow this order — commit first, then deploy:**
-1. **Commit and push to GitHub first:**
+**Always follow this order — pull first, commit, then deploy:**
+1. **Pull latest changes before starting any work:**
+   ```bash
+   git pull origin main
+   ```
+2. **Commit and push to GitHub first:**
    ```powershell
    & "C:\Program Files\Git\bin\git.exe" add -A ; if ($?) { & "C:\Program Files\Git\bin\git.exe" commit -m "..." } ; if ($?) { & "C:\Program Files\Git\bin\git.exe" push origin main }
    ```
-2. **Copy changed files to Synology** via legacy SCP (`-O` is required, `-P 83`). Copy only the files that changed. Common files:
+3. **Copy changed files to Synology** via legacy SCP (`-O` is required, `-P 83`). Copy only the files that changed. Common files:
    ```powershell
    & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
    & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/portfolio/index.html
@@ -38,11 +47,11 @@ This file provides guidance to agents when working with code in this repository.
    & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 admin/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/admin/index.html
    & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 api/server.js api/package.json keithhinds@100.123.139.84:/volume1/docker/keith-website/api/
    ```
-3. **Create any new remote directories** before copying into them:
+4. **Create any new remote directories** before copying into them:
    ```powershell
    & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "mkdir -p /volume1/docker/keith-website/<new-dir>"
    ```
-4. **Rebuild & restart Docker containers** (requires passwordless sudo rule on Synology):
+5. **Rebuild & restart Docker containers** (requires passwordless sudo rule on Synology):
    ```powershell
    & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
    ```
