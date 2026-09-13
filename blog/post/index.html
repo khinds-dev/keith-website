@@ -116,11 +116,10 @@
     .back-link:hover { color: #1f2328; }
 
     /* ── Post header ── */
-    /* post-cover uses a wrapper div so zoom + focal point both work */
+    /* post-cover-wrap: height is set by JS to match exact cropped image height */
     .post-cover-wrap {
       position: relative;
       width: 100%;
-      padding-top: 56.25%; /* 16:9 — matches admin crop box */
       overflow: hidden;
       border-radius: 8px;
       border: 1px solid #e5e7eb;
@@ -345,6 +344,7 @@
             var img = document.querySelector('.post-cover');
             applyCoverPosition(img);
             img.addEventListener('load', function () { applyCoverPosition(img); });
+            window.addEventListener('resize', function () { applyCoverPosition(img); });
           }
         })
         .catch(function () {
@@ -355,24 +355,50 @@
 
     function applyCoverPosition(img) {
       var wrap = img.parentNode;
+      // Reset any previously set inline width so we measure the column's natural width
+      wrap.style.width = '';
       var wrapW = wrap.offsetWidth;
-      var wrapH = wrap.offsetHeight;
       var natW  = img.naturalWidth;
       var natH  = img.naturalHeight;
-      if (!natW || !natH || !wrapW || !wrapH) return;
+      if (!natW || !natH || !wrapW) return;
       var fx = parseFloat(img.dataset.fx);
       var fy = parseFloat(img.dataset.fy);
       var fz = parseFloat(img.dataset.fz);
-      // baseW/baseH: image size at fz=1 (contain inside wrap — same baseline as admin cropper)
-      var scale = Math.min(wrapW / natW, wrapH / natH);
-      var baseW = natW * scale;
-      var baseH = natH * scale;
-      var imgW = baseW * fz;
-      var imgH = baseH * fz;
+
+      // Replicate admin crop box: 16:9 at current wrap width
+      var CROP_RATIO = 16 / 9;
+      var cropW = wrapW;
+      var cropH = Math.round(cropW / CROP_RATIO);
+
+      // scaleToFit: same as admin — contain the image inside the crop box at fz=1
+      var scaleToFit = Math.min(cropW / natW, cropH / natH);
+      var imgW = natW * scaleToFit * fz;
+      var imgH = natH * scaleToFit * fz;
+
+      // Image top-left relative to crop box top-left (crop box origin = wrap origin)
+      var imgLeft = cropW / 2 - (fx / 100) * imgW;
+      var imgTop  = cropH / 2 - (fy / 100) * imgH;
+
+      // Visible image region within the crop box (clip to intersection of image and crop box)
+      var visLeft   = Math.max(0, imgLeft);
+      var visRight  = Math.min(cropW, imgLeft + imgW);
+      var visTop    = Math.max(0, imgTop);
+      var visBottom = Math.min(cropH, imgTop + imgH);
+      var visWidth  = Math.max(0, visRight  - visLeft);
+      var visHeight = Math.max(0, visBottom - visTop);
+
+      // Size the wrap to exactly the visible image region — no empty space on any edge.
+      // Centre the wrap within the content column so layout remains balanced.
+      wrap.style.width  = visWidth  + 'px';
+      wrap.style.height = visHeight + 'px';
+      wrap.style.marginLeft  = 'auto';
+      wrap.style.marginRight = 'auto';
+
+      // Offset the image so the visible region's top-left maps to (0, 0) in the wrap
       img.style.width  = imgW + 'px';
       img.style.height = imgH + 'px';
-      img.style.left   = (wrapW / 2 - (fx / 100) * imgW) + 'px';
-      img.style.top    = (wrapH / 2 - (fy / 100) * imgH) + 'px';
+      img.style.left   = (imgLeft - visLeft) + 'px';
+      img.style.top    = (imgTop  - visTop)  + 'px';
     }
 
     function escHtml(s) {
