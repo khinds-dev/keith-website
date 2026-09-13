@@ -134,12 +134,21 @@
 
     .post-tile:hover { border-color: #1f2328; }
 
+    .post-tile-image-wrap {
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+      background: #f7f8fa;
+    }
+
     .post-tile-image {
       width: 100%;
       height: 160px;
       object-fit: cover;
       display: block;
-      background: #f7f8fa;
+      transform-origin: var(--fx, 50%) var(--fy, 50%);
+      transform: scale(var(--fz, 1));
+      object-position: var(--fx, 50%) var(--fy, 50%);
     }
 
     .post-tile-no-image {
@@ -278,7 +287,13 @@
             day: 'numeric', month: 'short', year: 'numeric'
           });
           var imgHtml = p.cover_image
-            ? '<img class="post-tile-image" src="' + escAttr(p.cover_image) + '" alt="" loading="lazy" />'
+            ? (function () {
+                var fx = (p.cover_focal_x != null) ? p.cover_focal_x : 50;
+                var fy = (p.cover_focal_y != null) ? p.cover_focal_y : 50;
+                var fz = (p.cover_zoom    != null) ? p.cover_zoom    : 1;
+                var st = '--fx:' + fx + '%;--fy:' + fy + '%;--fz:' + fz;
+                return '<div class="post-tile-image-wrap"><img class="post-tile-image" src="' + escAttr(p.cover_image) + '" alt="" loading="lazy" style="' + st + '" /></div>';
+              })()
             : IMAGE_PLACEHOLDER;
           return '<a class="post-tile" href="/blog/post?slug=' + encodeURIComponent(p.slug) + '">' +
             imgHtml +

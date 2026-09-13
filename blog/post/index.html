@@ -116,14 +116,24 @@
     .back-link:hover { color: #1f2328; }
 
     /* ── Post header ── */
-    .post-cover {
+    /* post-cover uses a wrapper div so zoom + focal point both work */
+    .post-cover-wrap {
       width: 100%;
       max-height: 360px;
-      object-fit: cover;
+      overflow: hidden;
       border-radius: 8px;
       border: 1px solid #e5e7eb;
-      display: block;
       margin-bottom: 2rem;
+    }
+
+    .post-cover {
+      width: 100%;
+      height: 360px;
+      object-fit: cover;
+      display: block;
+      transform-origin: var(--fx, 50%) var(--fy, 50%);
+      transform: scale(var(--fz, 1));
+      object-position: var(--fx, 50%) var(--fy, 50%);
     }
 
     .post-header {
@@ -329,8 +339,14 @@
           var date = new Date(post.created_at).toLocaleDateString('en-GB', {
             day: 'numeric', month: 'long', year: 'numeric'
           });
+          function coverStyle(p) {
+            var fx = (p.cover_focal_x != null) ? p.cover_focal_x : 50;
+            var fy = (p.cover_focal_y != null) ? p.cover_focal_y : 50;
+            var fz = (p.cover_zoom    != null) ? p.cover_zoom    : 1;
+            return '--fx:' + fx + '%;--fy:' + fy + '%;--fz:' + fz;
+          }
           var coverHtml = post.cover_image
-            ? '<img class="post-cover" src="' + escAttr(post.cover_image) + '" alt="" />'
+            ? '<div class="post-cover-wrap"><img class="post-cover" src="' + escAttr(post.cover_image) + '" alt="" style="' + coverStyle(post) + '" /></div>'
             : '';
           document.getElementById('postContent').innerHTML =
             coverHtml +

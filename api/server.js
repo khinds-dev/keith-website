@@ -26,21 +26,25 @@ const db = new Database(DB_PATH);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS posts (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    title       TEXT    NOT NULL,
-    slug        TEXT    NOT NULL UNIQUE,
-    body        TEXT    NOT NULL DEFAULT '',
-    cover_image TEXT,
-    published   INTEGER NOT NULL DEFAULT 0,
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    title           TEXT    NOT NULL,
+    slug            TEXT    NOT NULL UNIQUE,
+    body            TEXT    NOT NULL DEFAULT '',
+    cover_image     TEXT,
+    cover_focal_x   REAL    NOT NULL DEFAULT 50,
+    cover_focal_y   REAL    NOT NULL DEFAULT 50,
+    cover_zoom      REAL    NOT NULL DEFAULT 1,
+    published       INTEGER NOT NULL DEFAULT 0,
+    created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at      TEXT    NOT NULL DEFAULT (datetime('now'))
   )
 `);
 
-// Migrate: add cover_image column if upgrading from old schema
-try {
-  db.exec('ALTER TABLE posts ADD COLUMN cover_image TEXT');
-} catch (_) { /* column already exists */ }
+// Migrate: add columns if upgrading from old schema
+try { db.exec('ALTER TABLE posts ADD COLUMN cover_image TEXT'); }     catch (_) {}
+try { db.exec('ALTER TABLE posts ADD COLUMN cover_focal_x REAL NOT NULL DEFAULT 50'); } catch (_) {}
+try { db.exec('ALTER TABLE posts ADD COLUMN cover_focal_y REAL NOT NULL DEFAULT 50'); } catch (_) {}
+try { db.exec('ALTER TABLE posts ADD COLUMN cover_zoom REAL NOT NULL DEFAULT 1'); }    catch (_) {}
 
 // ── Multer (image uploads) ────────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -97,7 +101,7 @@ app.post('/api/login', (req, res) => {
 // GET /api/posts  — public, returns published posts only
 app.get('/api/posts', (req, res) => {
   const posts = db
-    .prepare('SELECT id, title, slug, cover_image, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
+    .prepare('SELECT id, title, slug, cover_image, cover_focal_x, cover_focal_y, cover_zoom, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
     .all();
   res.json(posts);
 });
@@ -105,7 +109,7 @@ app.get('/api/posts', (req, res) => {
 // GET /api/posts/all  — admin, returns all posts
 app.get('/api/posts/all', requireAuth, (req, res) => {
   const posts = db
-    .prepare('SELECT id, title, slug, body, cover_image, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
+    .prepare('SELECT id, title, slug, body, cover_image, cover_focal_x, cover_focal_y, cover_zoom, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
     .all();
   res.json(posts);
 });
@@ -113,7 +117,7 @@ app.get('/api/posts/all', requireAuth, (req, res) => {
 // GET /api/posts/:slug  — public, returns a single published post by slug
 app.get('/api/posts/:slug', (req, res) => {
   const post = db
-    .prepare('SELECT id, title, slug, body, cover_image, created_at FROM posts WHERE slug = ? AND published = 1')
+    .prepare('SELECT id, title, slug, body, cover_image, cover_focal_x, cover_focal_y, cover_zoom, created_at FROM posts WHERE slug = ? AND published = 1')
     .get(req.params.slug);
   if (!post) return res.status(404).json({ error: 'Not found' });
   res.json(post);
@@ -181,10 +185,10 @@ app.post('/api/posts/:id/image', requireAuth, (req, res) => {
     }
 
     const imageUrl = '/api/images/' + req.file.filename;
-    db.prepare(`UPDATE posts SET cover_image = ?, updated_at = datetime('now') WHERE id = ?`)
+    db.prepare(`UPDATE posts SET cover_image = ?, cover_focal_x = 50, cover_focal_y = 50, cover_zoom = 1, updated_at = datetime('now') WHERE id = ?`)
       .run(imageUrl, req.params.id);
 
-    res.json({ cover_image: imageUrl });
+    res.json({ cover_image: imageUrl, cover_focal_x: 50, cover_focal_y: 50, cover_zoom: 1 });
   });
 });
 
@@ -198,10 +202,26 @@ app.delete('/api/posts/:id/image', requireAuth, (req, res) => {
     if (fs.existsSync(file)) fs.unlink(file, () => {});
   }
 
-  db.prepare(`UPDATE posts SET cover_image = NULL, updated_at = datetime('now') WHERE id = ?`)
+  db.prepare(`UPDATE posts SET cover_image = NULL, cover_focal_x = 50, cover_focal_y = 50, cover_zoom = 1, updated_at = datetime('now') WHERE id = ?`)
     .run(req.params.id);
 
   res.json({ deleted: true });
+});
+
+// PUT /api/posts/:id/image  — admin, update focal point and zoom
+app.put('/api/posts/:id/image', requireAuth, (req, res) => {
+  const { cover_focal_x, cover_focal_y, cover_zoom } = req.body || {};
+  const existing = db.prepare('SELECT * FROM posts WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+
+  const fx = cover_focal_x !== undefined ? Number(cover_focal_x) : existing.cover_focal_x;
+  const fy = cover_focal_y !== undefined ? Number(cover_focal_y) : existing.cover_focal_y;
+  const fz = cover_zoom    !== undefined ? Number(cover_zoom)    : existing.cover_zoom;
+
+  db.prepare(`UPDATE posts SET cover_focal_x = ?, cover_focal_y = ?, cover_zoom = ?, updated_at = datetime('now') WHERE id = ?`)
+    .run(fx, fy, fz, req.params.id);
+
+  res.json({ cover_focal_x: fx, cover_focal_y: fy, cover_zoom: fz });
 });
 
 // GET /api/images/:filename  — public, serve uploaded images

@@ -270,20 +270,118 @@
       margin-bottom: 1rem;
     }
 
-    .cover-preview {
+    /* Focal point picker container */
+    .focal-wrap {
+      position: relative;
       width: 100%;
-      max-height: 200px;
-      object-fit: cover;
+      height: 200px;
+      overflow: hidden;
       border-radius: 6px;
       border: 1px solid #e5e7eb;
-      display: block;
       margin-bottom: 0.6rem;
+      cursor: crosshair;
+      background: #f7f8fa;
+      user-select: none;
+    }
+
+    .focal-img {
+      position: absolute;
+      /* sized/positioned by JS via transform-origin + transform */
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      transform-origin: var(--fx, 50%) var(--fy, 50%);
+      transform: scale(var(--fz, 1));
+      object-position: var(--fx, 50%) var(--fy, 50%);
+    }
+
+    /* Crosshair dot */
+    .focal-dot {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      border: 2px solid #1f2328;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: box-shadow 0.1s;
+    }
+
+    .focal-dot::before,
+    .focal-dot::after {
+      content: '';
+      position: absolute;
+      background: #1f2328;
+    }
+    .focal-dot::before { width: 1px; height: 10px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    .focal-dot::after  { width: 10px; height: 1px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+    .focal-wrap:active .focal-dot { box-shadow: 0 0 0 4px rgba(59,130,212,0.3); }
+
+    /* Overlay hint shown before first interaction */
+    .focal-hint-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .focal-hint-badge {
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      opacity: 1;
+      transition: opacity 0.3s;
+    }
+
+    .focal-hint-badge.hide { opacity: 0; }
+
+    /* Zoom row */
+    .zoom-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .zoom-row label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #57606a;
+      white-space: nowrap;
+      margin: 0;
+    }
+
+    .zoom-row input[type="range"] {
+      flex: 1;
+      margin: 0;
+      padding: 0;
+      height: 4px;
+      border: none;
+      border-radius: 2px;
+      accent-color: #1f2328;
+      cursor: pointer;
+    }
+
+    .zoom-val {
+      font-size: 0.78rem;
+      color: #57606a;
+      min-width: 2.5rem;
+      text-align: right;
     }
 
     .cover-actions {
       display: flex;
       gap: 0.5rem;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .cover-upload-label {
@@ -528,23 +626,38 @@
       var post = id ? posts.find(function (p) { return p.id === id; }) : null;
       var panel = document.getElementById('editorPanel');
 
+      // ── Build cover section HTML ─────────────────────────────────────────────
+      var fx = (post && post.cover_focal_x != null) ? post.cover_focal_x : 50;
+      var fy = (post && post.cover_focal_y != null) ? post.cover_focal_y : 50;
+      var fz = (post && post.cover_zoom    != null) ? post.cover_zoom    : 1;
+
       var coverHtml = '';
       if (id) {
+        var hasCover = post && post.cover_image;
         coverHtml =
           '<div class="cover-section">' +
             '<label>Cover image</label>' +
-            (post && post.cover_image
-              ? '<img id="coverPreview" class="cover-preview" src="' + escAttr(post.cover_image) + '" alt="Cover" />'
-              : '<div id="coverPreview" style="display:none;"></div>') +
+            (hasCover
+              ? '<div class="focal-wrap" id="focalWrap">' +
+                  '<img class="focal-img" id="focalImg" src="' + escAttr(post.cover_image) + '" alt="" />' +
+                  '<div class="focal-dot" id="focalDot"></div>' +
+                  '<div class="focal-hint-overlay"><span class="focal-hint-badge" id="focalHint">Drag to reposition</span></div>' +
+                '</div>' +
+                '<div class="zoom-row">' +
+                  '<label for="zoomSlider">Zoom</label>' +
+                  '<input type="range" id="zoomSlider" min="1" max="3" step="0.05" value="' + fz + '" />' +
+                  '<span class="zoom-val" id="zoomVal">' + fz.toFixed(2) + '×</span>' +
+                '</div>'
+              : '') +
             '<div class="cover-actions">' +
               '<label class="cover-upload-label">' +
                 '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M7.47 1.97a.75.75 0 0 1 1.06 0l3.5 3.5a.75.75 0 0 1-1.06 1.06L9 4.56v7.19a.75.75 0 0 1-1.5 0V4.56L5.53 6.53a.75.75 0 0 1-1.06-1.06l3-3z"/><path d="M3.25 14a.75.75 0 0 1 0-1.5h9.5a.75.75 0 0 1 0 1.5h-9.5z"/></svg>' +
-                'Upload image' +
+                (hasCover ? 'Replace image' : 'Upload image') +
                 '<input type="file" id="coverInput" accept="image/jpeg,image/png,image/gif,image/webp" />' +
               '</label>' +
-              (post && post.cover_image ? '<button class="btn btn-danger" id="removeCoverBtn">Remove</button>' : '') +
+              (hasCover ? '<button class="btn btn-danger" id="removeCoverBtn">Remove</button>' : '') +
             '</div>' +
-            '<p class="cover-hint">JPEG, PNG, GIF or WebP · max 8 MB</p>' +
+            '<p class="cover-hint">JPEG, PNG, GIF or WebP · max 8 MB' + (hasCover ? ' · Drag the image to set focal point' : '') + '</p>' +
           '</div>';
       }
 
@@ -571,7 +684,78 @@
       var delBtn = document.getElementById('deleteBtn');
       if (delBtn) delBtn.addEventListener('click', function () { deletePost(id); });
 
-      // Cover image upload
+      // ── Focal point picker ────────────────────────────────────────────────────
+      var focalWrap = document.getElementById('focalWrap');
+      if (focalWrap) {
+        var focalImg  = document.getElementById('focalImg');
+        var focalDot  = document.getElementById('focalDot');
+        var zoomSlider = document.getElementById('zoomSlider');
+        var zoomVal    = document.getElementById('zoomVal');
+        var focalHint  = document.getElementById('focalHint');
+
+        // Apply initial values
+        applyFocal(fx, fy, fz);
+
+        var isDragging = false;
+        var focalSaveTimer;
+
+        function applyFocal(x, y, z) {
+          focalImg.style.setProperty('--fx', x + '%');
+          focalImg.style.setProperty('--fy', y + '%');
+          focalImg.style.setProperty('--fz', z);
+          focalDot.style.left = x + '%';
+          focalDot.style.top  = y + '%';
+        }
+
+        function posFromEvent(e) {
+          var rect = focalWrap.getBoundingClientRect();
+          var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          return {
+            x: Math.max(0, Math.min(100, (clientX - rect.left)  / rect.width  * 100)),
+            y: Math.max(0, Math.min(100, (clientY - rect.top)   / rect.height * 100))
+          };
+        }
+
+        function saveFocal() {
+          clearTimeout(focalSaveTimer);
+          focalSaveTimer = setTimeout(function () {
+            fetch('/api/posts/' + id + '/image', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+              body: JSON.stringify({ cover_focal_x: fx, cover_focal_y: fy, cover_zoom: fz })
+            }).catch(function () { toast('Failed to save image position'); });
+          }, 400);
+        }
+
+        function onMove(e) {
+          if (!isDragging) return;
+          e.preventDefault();
+          var pos = posFromEvent(e);
+          fx = pos.x; fy = pos.y;
+          applyFocal(fx, fy, fz);
+          if (focalHint) focalHint.classList.add('hide');
+          saveFocal();
+        }
+
+        focalWrap.addEventListener('mousedown',  function (e) { isDragging = true; onMove(e); });
+        focalWrap.addEventListener('touchstart', function (e) { isDragging = true; onMove(e); }, { passive: false });
+        document.addEventListener('mousemove',   onMove);
+        document.addEventListener('touchmove',   onMove, { passive: false });
+        document.addEventListener('mouseup',     function () { isDragging = false; });
+        document.addEventListener('touchend',    function () { isDragging = false; });
+
+        // Zoom slider
+        zoomSlider.addEventListener('input', function () {
+          fz = parseFloat(zoomSlider.value);
+          zoomVal.textContent = fz.toFixed(2) + '×';
+          applyFocal(fx, fy, fz);
+          if (focalHint) focalHint.classList.add('hide');
+          saveFocal();
+        });
+      }
+
+      // ── Cover image upload ────────────────────────────────────────────────────
       var coverInput = document.getElementById('coverInput');
       if (coverInput) {
         coverInput.addEventListener('change', function () {
@@ -588,36 +772,14 @@
             .then(function (res) {
               if (!res.ok) throw new Error(res.d.error || 'Upload failed');
               toast('Cover image uploaded');
-              // Update preview inline
-              var preview = document.getElementById('coverPreview');
-              if (preview.tagName === 'DIV') {
-                // Replace placeholder div with an img
-                var img = document.createElement('img');
-                img.id = 'coverPreview';
-                img.className = 'cover-preview';
-                img.alt = 'Cover';
-                img.src = res.d.cover_image;
-                preview.parentNode.replaceChild(img, preview);
-              } else {
-                preview.src = res.d.cover_image;
-              }
-              // Add remove button if not present
-              var actions = document.querySelector('.cover-actions');
-              if (actions && !document.getElementById('removeCoverBtn')) {
-                var rb = document.createElement('button');
-                rb.className = 'btn btn-danger';
-                rb.id = 'removeCoverBtn';
-                rb.textContent = 'Remove';
-                actions.appendChild(rb);
-                rb.addEventListener('click', function () { removeCover(id); });
-              }
               loadPosts();
+              openEditor(id);
             })
             .catch(function (err) { toast(err.message); });
         });
       }
 
-      // Cover image remove
+      // ── Cover image remove ────────────────────────────────────────────────────
       var removeCoverBtn = document.getElementById('removeCoverBtn');
       if (removeCoverBtn) {
         removeCoverBtn.addEventListener('click', function () { removeCover(id); });
