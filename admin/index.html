@@ -270,7 +270,7 @@
       margin-bottom: 1rem;
     }
 
-    /* Focal point picker container */
+    /* Image pan/zoom picker container */
     .focal-wrap {
       position: relative;
       width: 100%;
@@ -279,47 +279,23 @@
       border-radius: 6px;
       border: 1px solid #e5e7eb;
       margin-bottom: 0.6rem;
-      cursor: crosshair;
+      cursor: grab;
       background: #f7f8fa;
       user-select: none;
     }
 
+    .focal-wrap.dragging { cursor: grabbing; }
+
     .focal-img {
       position: absolute;
-      /* sized/positioned by JS via transform-origin + transform */
+      /* natural size; JS applies transform: translate + scale */
       width: 100%;
       height: 100%;
       object-fit: cover;
       pointer-events: none;
-      transform-origin: var(--fx, 50%) var(--fy, 50%);
-      transform: scale(var(--fz, 1));
-      object-position: var(--fx, 50%) var(--fy, 50%);
+      transform-origin: center center;
+      will-change: transform;
     }
-
-    /* Crosshair dot */
-    .focal-dot {
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.9);
-      border: 2px solid #1f2328;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      transition: box-shadow 0.1s;
-    }
-
-    .focal-dot::before,
-    .focal-dot::after {
-      content: '';
-      position: absolute;
-      background: #1f2328;
-    }
-    .focal-dot::before { width: 1px; height: 10px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-    .focal-dot::after  { width: 10px; height: 1px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-
-    .focal-wrap:active .focal-dot { box-shadow: 0 0 0 4px rgba(59,130,212,0.3); }
 
     /* Overlay hint shown before first interaction */
     .focal-hint-overlay {
@@ -640,12 +616,11 @@
             (hasCover
               ? '<div class="focal-wrap" id="focalWrap">' +
                   '<img class="focal-img" id="focalImg" src="' + escAttr(post.cover_image) + '" alt="" />' +
-                  '<div class="focal-dot" id="focalDot"></div>' +
-                  '<div class="focal-hint-overlay"><span class="focal-hint-badge" id="focalHint">Drag to reposition</span></div>' +
+                  '<div class="focal-hint-overlay"><span class="focal-hint-badge" id="focalHint">Drag to pan</span></div>' +
                 '</div>' +
                 '<div class="zoom-row">' +
                   '<label for="zoomSlider">Zoom</label>' +
-                  '<input type="range" id="zoomSlider" min="1" max="3" step="0.05" value="' + fz + '" />' +
+                  '<input type="range" id="zoomSlider" min="0.5" max="3" step="0.05" value="' + fz + '" />' +
                   '<span class="zoom-val" id="zoomVal">' + fz.toFixed(2) + '×</span>' +
                 '</div>'
               : '') +
@@ -657,7 +632,7 @@
               '</label>' +
               (hasCover ? '<button class="btn btn-danger" id="removeCoverBtn">Remove</button>' : '') +
             '</div>' +
-            '<p class="cover-hint">JPEG, PNG, GIF or WebP · max 8 MB' + (hasCover ? ' · Drag the image to set focal point' : '') + '</p>' +
+            '<p class="cover-hint">JPEG, PNG, GIF or WebP · max 8 MB' + (hasCover ? ' · Drag to pan · use slider to zoom' : '') + '</p>' +
           '</div>';
       }
 
@@ -684,72 +659,110 @@
       var delBtn = document.getElementById('deleteBtn');
       if (delBtn) delBtn.addEventListener('click', function () { deletePost(id); });
 
-      // ── Focal point picker ────────────────────────────────────────────────────
+      // ── Pan / zoom picker ─────────────────────────────────────────────────────
       var focalWrap = document.getElementById('focalWrap');
       if (focalWrap) {
-        var focalImg  = document.getElementById('focalImg');
-        var focalDot  = document.getElementById('focalDot');
+        var focalImg   = document.getElementById('focalImg');
         var zoomSlider = document.getElementById('zoomSlider');
         var zoomVal    = document.getElementById('zoomVal');
         var focalHint  = document.getElementById('focalHint');
 
-        // Apply initial values
-        applyFocal(fx, fy, fz);
+        // fx/fy here are pixel offsets (translateX, translateY); fz is scale.
+        // Convert stored % focal values back to pixel offsets on first load.
+        var ww = focalWrap.offsetWidth  || 320;
+        var wh = focalWrap.offsetHeight || 200;
+        // stored as 0-100 percent relative to wrap size → convert to pixel offset from centre
+        var tx = ((fx / 100) * ww) - ww / 2;
+        var ty = ((fy / 100) * wh) - wh / 2;
 
-        var isDragging = false;
         var focalSaveTimer;
+        var isDragging = false;
+        var dragStartX, dragStartY, dragStartTx, dragStartTy;
 
-        function applyFocal(x, y, z) {
-          focalImg.style.setProperty('--fx', x + '%');
-          focalImg.style.setProperty('--fy', y + '%');
-          focalImg.style.setProperty('--fz', z);
-          focalDot.style.left = x + '%';
-          focalDot.style.top  = y + '%';
+        function applyTransform() {
+          focalImg.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + fz + ')';
         }
 
-        function posFromEvent(e) {
-          var rect = focalWrap.getBoundingClientRect();
-          var clientX = e.touches ? e.touches[0].clientX : e.clientX;
-          var clientY = e.touches ? e.touches[0].clientY : e.clientY;
-          return {
-            x: Math.max(0, Math.min(100, (clientX - rect.left)  / rect.width  * 100)),
-            y: Math.max(0, Math.min(100, (clientY - rect.top)   / rect.height * 100))
-          };
+        function clampTranslate() {
+          // Limit pan so the image never shows the background through an edge.
+          // The image already fills 100%×100% at scale 1; at scale fz it overflows
+          // by (fz-1)/2 * dimension on each side.
+          var maxX = ww  * (fz - 1) / 2;
+          var maxY = wh * (fz - 1) / 2;
+          tx = Math.max(-maxX, Math.min(maxX, tx));
+          ty = Math.max(-maxY, Math.min(maxY, ty));
         }
 
         function saveFocal() {
+          // Persist as % (0-100) for back-compat with API
+          var pctX = ((tx + ww / 2) / ww) * 100;
+          var pctY = ((ty + wh / 2) / wh) * 100;
           clearTimeout(focalSaveTimer);
           focalSaveTimer = setTimeout(function () {
             fetch('/api/posts/' + id + '/image', {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-              body: JSON.stringify({ cover_focal_x: fx, cover_focal_y: fy, cover_zoom: fz })
+              body: JSON.stringify({ cover_focal_x: pctX, cover_focal_y: pctY, cover_zoom: fz })
             }).catch(function () { toast('Failed to save image position'); });
           }, 400);
         }
 
-        function onMove(e) {
-          if (!isDragging) return;
-          e.preventDefault();
-          var pos = posFromEvent(e);
-          fx = pos.x; fy = pos.y;
-          applyFocal(fx, fy, fz);
-          if (focalHint) focalHint.classList.add('hide');
-          saveFocal();
+        function clientXY(e) {
+          return e.touches
+            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+            : { x: e.clientX, y: e.clientY };
         }
 
-        focalWrap.addEventListener('mousedown',  function (e) { isDragging = true; onMove(e); });
-        focalWrap.addEventListener('touchstart', function (e) { isDragging = true; onMove(e); }, { passive: false });
-        document.addEventListener('mousemove',   onMove);
-        document.addEventListener('touchmove',   onMove, { passive: false });
-        document.addEventListener('mouseup',     function () { isDragging = false; });
-        document.addEventListener('touchend',    function () { isDragging = false; });
+        applyTransform();
+
+        focalWrap.addEventListener('mousedown', function (e) {
+          isDragging = true;
+          var p = clientXY(e);
+          dragStartX = p.x; dragStartY = p.y;
+          dragStartTx = tx; dragStartTy = ty;
+          focalWrap.classList.add('dragging');
+          if (focalHint) focalHint.classList.add('hide');
+          e.preventDefault();
+        });
+
+        focalWrap.addEventListener('touchstart', function (e) {
+          isDragging = true;
+          var p = clientXY(e);
+          dragStartX = p.x; dragStartY = p.y;
+          dragStartTx = tx; dragStartTy = ty;
+          if (focalHint) focalHint.classList.add('hide');
+        }, { passive: true });
+
+        document.addEventListener('mousemove', function (e) {
+          if (!isDragging) return;
+          var p = clientXY(e);
+          tx = dragStartTx + (p.x - dragStartX);
+          ty = dragStartTy + (p.y - dragStartY);
+          clampTranslate();
+          applyTransform();
+          saveFocal();
+        });
+
+        document.addEventListener('touchmove', function (e) {
+          if (!isDragging) return;
+          e.preventDefault();
+          var p = clientXY(e);
+          tx = dragStartTx + (p.x - dragStartX);
+          ty = dragStartTy + (p.y - dragStartY);
+          clampTranslate();
+          applyTransform();
+          saveFocal();
+        }, { passive: false });
+
+        document.addEventListener('mouseup',  function () { isDragging = false; focalWrap.classList.remove('dragging'); });
+        document.addEventListener('touchend', function () { isDragging = false; });
 
         // Zoom slider
         zoomSlider.addEventListener('input', function () {
           fz = parseFloat(zoomSlider.value);
           zoomVal.textContent = fz.toFixed(2) + '×';
-          applyFocal(fx, fy, fz);
+          clampTranslate();
+          applyTransform();
           if (focalHint) focalHint.classList.add('hide');
           saveFocal();
         });
@@ -772,7 +785,15 @@
             .then(function (res) {
               if (!res.ok) throw new Error(res.d.error || 'Upload failed');
               toast('Cover image uploaded');
-              loadPosts();
+              // Update the in-memory post record so openEditor renders the new image immediately
+              var p = posts.find(function (p) { return p.id === id; });
+              if (p && res.d.cover_image) {
+                p.cover_image    = res.d.cover_image;
+                p.cover_focal_x  = res.d.cover_focal_x;
+                p.cover_focal_y  = res.d.cover_focal_y;
+                p.cover_zoom     = res.d.cover_zoom;
+              }
+              loadPosts(); // refresh list in background
               openEditor(id);
             })
             .catch(function (err) { toast(err.message); });
