@@ -208,6 +208,14 @@
     }
     .post-body a { color: #0969da; }
     .post-body a:hover { text-decoration: none; }
+    .post-inline-img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      margin: 0.5rem auto 1.25rem;
+    }
 
     /* ── States ── */
     .error-state {
@@ -309,6 +317,8 @@
         .replace(/^\s*[-*] (.+)$/gm, '<li>$1</li>')
         // Wrap consecutive <li> in <ul>
         .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>')
+        // Images (must come before links)
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="post-inline-img" />')
         // Links
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
         // Paragraphs (lines not already block elements)
@@ -316,7 +326,7 @@
         .map(function (block) {
           block = block.trim();
           if (!block) return '';
-          if (/^<(h[1-6]|ul|ol|li|pre|blockquote)/.test(block)) return block;
+          if (/^<(h[1-6]|ul|ol|li|pre|blockquote|img)/.test(block)) return block;
           return '<p>' + block.replace(/\n/g, ' ') + '</p>';
         })
         .join('\n');

@@ -396,6 +396,30 @@
     .cover-upload-label:hover { border-color: #1f2328; background: #f7f8fa; }
     .cover-upload-label input { display: none; }
 
+    /* ── Body toolbar ── */
+    .body-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+    .toolbar-upload-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.65rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #fff;
+      color: #1f2328;
+      user-select: none;
+    }
+    .toolbar-upload-label:hover { border-color: #1f2328; background: #f7f8fa; }
+    .toolbar-upload-label input { display: none; }
+    .toolbar-upload-label.uploading { opacity: 0.6; pointer-events: none; }
+
     .cover-hint {
       font-size: 0.75rem;
       color: #57606a;
@@ -662,6 +686,13 @@
           '<input type="text" id="edTitle" value="' + (post ? escAttr(post.title) : '') + '" placeholder="Post title" />' +
           coverHtml +
           '<label for="edBody">Body <span style="font-weight:400;color:#57606a;">(Markdown supported)</span></label>' +
+          '<div class="body-toolbar">' +
+            '<label class="toolbar-upload-label" id="inlineImgLabel">' +
+              '<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M7.47 1.97a.75.75 0 0 1 1.06 0l3.5 3.5a.75.75 0 0 1-1.06 1.06L9 4.56v7.19a.75.75 0 0 1-1.5 0V4.56L5.53 6.53a.75.75 0 0 1-1.06-1.06l3-3z"/><path d="M3.25 14a.75.75 0 0 1 0-1.5h9.5a.75.75 0 0 1 0 1.5h-9.5z"/></svg>' +
+              '<span id="inlineImgTxt"> Insert image</span>' +
+              '<input type="file" id="inlineImgInput" accept="image/jpeg,image/png,image/gif,image/webp" />' +
+            '</label>' +
+          '</div>' +
           '<textarea id="edBody" placeholder="Write your post here…">' + (post ? escHtml(post.body) : '') + '</textarea>' +
           '<div class="checkbox-row">' +
             '<input type="checkbox" id="edPublished" ' + (post && post.published ? 'checked' : '') + ' />' +
@@ -677,6 +708,47 @@
       document.getElementById('saveBtn').addEventListener('click', function () { savePost(id); });
       var delBtn = document.getElementById('deleteBtn');
       if (delBtn) delBtn.addEventListener('click', function () { deletePost(id); });
+
+      // ── Inline image upload ───────────────────────────────────────────────────
+      var inlineImgInput = document.getElementById('inlineImgInput');
+      var inlineImgLabel = document.getElementById('inlineImgLabel');
+      if (inlineImgInput) {
+        inlineImgInput.addEventListener('change', function () {
+          if (!inlineImgInput.files || !inlineImgInput.files[0]) return;
+          var formData = new FormData();
+          formData.append('image', inlineImgInput.files[0]);
+          inlineImgLabel.classList.add('uploading');
+          document.getElementById('inlineImgTxt').textContent = ' Uploading…';
+          fetch('/api/images', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+          })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+              inlineImgLabel.classList.remove('uploading');
+              document.getElementById('inlineImgTxt').textContent = ' Insert image';
+              inlineImgInput.value = '';
+              if (!res.ok) { toast(res.d.error || 'Upload failed'); return; }
+              var textarea = document.getElementById('edBody');
+              var url = res.d.url;
+              var md = '![image](' + url + ')';
+              var start = textarea.selectionStart;
+              var end   = textarea.selectionEnd;
+              var val   = textarea.value;
+              textarea.value = val.slice(0, start) + md + val.slice(end);
+              textarea.selectionStart = textarea.selectionEnd = start + md.length;
+              textarea.focus();
+              toast('Image inserted');
+            })
+            .catch(function () {
+              inlineImgLabel.classList.remove('uploading');
+              document.getElementById('inlineImgTxt').textContent = ' Insert image';
+              inlineImgInput.value = '';
+              toast('Upload failed');
+            });
+        });
+      }
 
       // ── Cropper ───────────────────────────────────────────────────────────────
       var cropperCanvas = document.getElementById('cropperCanvas');

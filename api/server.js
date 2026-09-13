@@ -47,6 +47,12 @@ try { db.exec('ALTER TABLE posts ADD COLUMN cover_focal_y REAL NOT NULL DEFAULT 
 try { db.exec('ALTER TABLE posts ADD COLUMN cover_zoom REAL NOT NULL DEFAULT 1'); }    catch (_) {}
 
 // ── Multer (image uploads) ────────────────────────────────────────────────────
+const imageFileFilter = (req, file, cb) => {
+  if (/^image\/(jpeg|png|gif|webp)$/.test(file.mimetype)) cb(null, true);
+  else cb(new Error('Only JPEG, PNG, GIF or WebP images are allowed'));
+};
+
+// Cover image upload — filename includes post id
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, IMAGES_DIR),
   filename: (req, file, cb) => {
@@ -58,10 +64,21 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 8 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (/^image\/(jpeg|png|gif|webp)$/.test(file.mimetype)) cb(null, true);
-    else cb(new Error('Only JPEG, PNG, GIF or WebP images are allowed'));
+  fileFilter: imageFileFilter
+});
+
+// Inline image upload — generic filename
+const inlineStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, IMAGES_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    cb(null, 'inline-' + Date.now() + ext);
   }
+});
+const uploadInline = multer({
+  storage: inlineStorage,
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: imageFileFilter
 });
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
@@ -222,6 +239,15 @@ app.put('/api/posts/:id/image', requireAuth, (req, res) => {
     .run(fx, fy, fz, req.params.id);
 
   res.json({ cover_focal_x: fx, cover_focal_y: fy, cover_zoom: fz });
+});
+
+// POST /api/images  — admin, upload a standalone inline image
+app.post('/api/images', requireAuth, (req, res) => {
+  uploadInline.single('image')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'No image file provided' });
+    res.json({ url: '/api/images/' + req.file.filename });
+  });
 });
 
 // GET /api/images/:filename  — public, serve uploaded images
