@@ -135,6 +135,7 @@
     .post-tile:hover { border-color: #1f2328; }
 
     .post-tile-image-wrap {
+      position: relative;
       width: 100%;
       height: 160px;
       overflow: hidden;
@@ -142,13 +143,9 @@
     }
 
     .post-tile-image {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
+      position: absolute;
       display: block;
-      transform-origin: var(--fx, 50%) var(--fy, 50%);
-      transform: scale(var(--fz, 1));
-      object-position: var(--fx, 50%) var(--fy, 50%);
+      /* sized and positioned by JS to match admin cropper coordinates */
     }
 
     .post-tile-no-image {
@@ -291,8 +288,7 @@
                 var fx = (p.cover_focal_x != null) ? p.cover_focal_x : 50;
                 var fy = (p.cover_focal_y != null) ? p.cover_focal_y : 50;
                 var fz = (p.cover_zoom    != null) ? p.cover_zoom    : 1;
-                var st = '--fx:' + fx + '%;--fy:' + fy + '%;--fz:' + fz;
-                return '<div class="post-tile-image-wrap"><img class="post-tile-image" src="' + escAttr(p.cover_image) + '" alt="" loading="lazy" style="' + st + '" /></div>';
+                return '<div class="post-tile-image-wrap"><img class="post-tile-image" src="' + escAttr(p.cover_image) + '" alt="" loading="lazy" data-fx="' + fx + '" data-fy="' + fy + '" data-fz="' + fz + '" /></div>';
               })()
             : IMAGE_PLACEHOLDER;
           return '<a class="post-tile" href="/blog/post?slug=' + encodeURIComponent(p.slug) + '">' +
@@ -303,12 +299,43 @@
             '</div>' +
             '</a>';
         }).join('');
+
+        // Position each cover image to match admin cropper coordinates exactly:
+        // fz=1 → image fits (contain) inside the wrap; fx/fy = crop-centre as % of image size
+        container.querySelectorAll('.post-tile-image').forEach(function (img) {
+          applyCoverPosition(img);
+          img.addEventListener('load', function () { applyCoverPosition(img); });
+        });
       })
       .catch(function () {
         var container = document.getElementById('postList');
         container.className = '';
         container.innerHTML = '<div class="empty-state">Could not load posts.</div>';
       });
+
+    function applyCoverPosition(img) {
+      var wrap = img.parentNode;
+      var wrapW = wrap.offsetWidth;
+      var wrapH = wrap.offsetHeight;
+      var natW  = img.naturalWidth;
+      var natH  = img.naturalHeight;
+      if (!natW || !natH || !wrapW || !wrapH) return;
+      var fx = parseFloat(img.dataset.fx);
+      var fy = parseFloat(img.dataset.fy);
+      var fz = parseFloat(img.dataset.fz);
+      // baseW/baseH: image size at fz=1 (contain inside wrap)
+      var scale = Math.min(wrapW / natW, wrapH / natH);
+      var baseW = natW * scale;
+      var baseH = natH * scale;
+      var imgW = baseW * fz;
+      var imgH = baseH * fz;
+      var imgLeft = wrapW / 2 - (fx / 100) * imgW;
+      var imgTop  = wrapH / 2 - (fy / 100) * imgH;
+      img.style.width  = imgW + 'px';
+      img.style.height = imgH + 'px';
+      img.style.left   = imgLeft + 'px';
+      img.style.top    = imgTop  + 'px';
+    }
 
     function escHtml(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

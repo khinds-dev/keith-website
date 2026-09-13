@@ -118,8 +118,9 @@
     /* ── Post header ── */
     /* post-cover uses a wrapper div so zoom + focal point both work */
     .post-cover-wrap {
+      position: relative;
       width: 100%;
-      max-height: 360px;
+      height: 360px;
       overflow: hidden;
       border-radius: 8px;
       border: 1px solid #e5e7eb;
@@ -127,13 +128,9 @@
     }
 
     .post-cover {
-      width: 100%;
-      height: 360px;
-      object-fit: cover;
+      position: absolute;
       display: block;
-      transform-origin: var(--fx, 50%) var(--fy, 50%);
-      transform: scale(var(--fz, 1));
-      object-position: var(--fx, 50%) var(--fy, 50%);
+      /* sized and positioned by JS to match admin cropper coordinates */
     }
 
     .post-header {
@@ -154,15 +151,6 @@
       color: #57606a;
     }
 
-    /* ── Cover image ── */
-    .post-cover {
-      width: 100%;
-      max-height: 400px;
-      object-fit: cover;
-      border-radius: 8px;
-      display: block;
-      margin-bottom: 2rem;
-    }
 
     /* ── Post body ── */
     .post-body {
@@ -339,14 +327,11 @@
           var date = new Date(post.created_at).toLocaleDateString('en-GB', {
             day: 'numeric', month: 'long', year: 'numeric'
           });
-          function coverStyle(p) {
-            var fx = (p.cover_focal_x != null) ? p.cover_focal_x : 50;
-            var fy = (p.cover_focal_y != null) ? p.cover_focal_y : 50;
-            var fz = (p.cover_zoom    != null) ? p.cover_zoom    : 1;
-            return '--fx:' + fx + '%;--fy:' + fy + '%;--fz:' + fz;
-          }
+          var fx = (post.cover_focal_x != null) ? post.cover_focal_x : 50;
+          var fy = (post.cover_focal_y != null) ? post.cover_focal_y : 50;
+          var fz = (post.cover_zoom    != null) ? post.cover_zoom    : 1;
           var coverHtml = post.cover_image
-            ? '<div class="post-cover-wrap"><img class="post-cover" src="' + escAttr(post.cover_image) + '" alt="" style="' + coverStyle(post) + '" /></div>'
+            ? '<div class="post-cover-wrap"><img class="post-cover" src="' + escAttr(post.cover_image) + '" alt="" data-fx="' + fx + '" data-fy="' + fy + '" data-fz="' + fz + '" /></div>'
             : '';
           document.getElementById('postContent').innerHTML =
             coverHtml +
@@ -355,11 +340,39 @@
               '<div class="post-meta">' + date + '</div>' +
             '</div>' +
             '<div class="post-body">' + renderMarkdown(post.body) + '</div>';
+
+          if (post.cover_image) {
+            var img = document.querySelector('.post-cover');
+            applyCoverPosition(img);
+            img.addEventListener('load', function () { applyCoverPosition(img); });
+          }
         })
         .catch(function () {
           document.getElementById('postContent').innerHTML =
             '<div class="error-state">Post not found.</div>';
         });
+    }
+
+    function applyCoverPosition(img) {
+      var wrap = img.parentNode;
+      var wrapW = wrap.offsetWidth;
+      var wrapH = wrap.offsetHeight;
+      var natW  = img.naturalWidth;
+      var natH  = img.naturalHeight;
+      if (!natW || !natH || !wrapW || !wrapH) return;
+      var fx = parseFloat(img.dataset.fx);
+      var fy = parseFloat(img.dataset.fy);
+      var fz = parseFloat(img.dataset.fz);
+      // baseW/baseH: image size at fz=1 (contain inside wrap)
+      var scale = Math.min(wrapW / natW, wrapH / natH);
+      var baseW = natW * scale;
+      var baseH = natH * scale;
+      var imgW = baseW * fz;
+      var imgH = baseH * fz;
+      img.style.width  = imgW + 'px';
+      img.style.height = imgH + 'px';
+      img.style.left   = (wrapW / 2 - (fx / 100) * imgW) + 'px';
+      img.style.top    = (wrapH / 2 - (fy / 100) * imgH) + 'px';
     }
 
     function escHtml(s) {
