@@ -383,6 +383,7 @@
         <div id="loginError" class="form-error" style="display:none;"></div>
         <button type="submit" class="btn btn-primary" style="width:100%;" id="loginBtn">Sign in</button>
       </form>
+      <a href="/" class="btn btn-outline" style="width:100%;margin-top:0.75rem;justify-content:center;">← Home</a>
     </div>
   </div>
 
@@ -390,7 +391,10 @@
   <div id="adminScreen">
     <div class="admin-header">
       <span class="title">Admin</span>
-      <button class="btn btn-outline" id="logoutBtn">Sign out</button>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="/" class="btn btn-outline">← Home</a>
+        <button class="btn btn-outline" id="logoutBtn">Sign out</button>
+      </div>
     </div>
     <div class="admin-body">
 
@@ -461,8 +465,7 @@
     document.getElementById('logoutBtn').addEventListener('click', function () {
       token = '';
       sessionStorage.removeItem('admin_token');
-      document.getElementById('adminScreen').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
+      window.location.href = '/';
     });
 
     // ── Show admin ─────────────────────────────────────────────────────────────
