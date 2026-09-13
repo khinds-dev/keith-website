@@ -363,8 +363,8 @@
       var fx = parseFloat(img.dataset.fx);
       var fy = parseFloat(img.dataset.fy);
       var fz = parseFloat(img.dataset.fz);
-      // baseW/baseH: image size at fz=1 (cover the wrap — no gaps)
-      var scale = Math.max(wrapW / natW, wrapH / natH);
+      // baseW/baseH: image size at fz=1 (contain inside wrap — same baseline as admin cropper)
+      var scale = Math.min(wrapW / natW, wrapH / natH);
       var baseW = natW * scale;
       var baseH = natH * scale;
       var imgW = baseW * fz;
