@@ -265,6 +265,51 @@
       font-size: 0.9rem;
     }
 
+    /* ── Cover image ── */
+    .cover-section {
+      margin-bottom: 1rem;
+    }
+
+    .cover-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+
+    .cover-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .cover-upload-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: #ffffff;
+      color: #1f2328;
+      border: 1px solid #e5e7eb;
+      transition: border-color 0.12s, background 0.12s;
+    }
+
+    .cover-upload-label:hover { border-color: #1f2328; background: #f7f8fa; }
+    .cover-upload-label input { display: none; }
+
+    .cover-hint {
+      font-size: 0.75rem;
+      color: #57606a;
+      margin-top: 0.35rem;
+    }
+
     /* ── Toast ── */
     #toast {
       position: fixed;
@@ -480,11 +525,32 @@
       var post = id ? posts.find(function (p) { return p.id === id; }) : null;
       var panel = document.getElementById('editorPanel');
 
+      var coverHtml = '';
+      if (id) {
+        coverHtml =
+          '<div class="cover-section">' +
+            '<label>Cover image</label>' +
+            (post && post.cover_image
+              ? '<img id="coverPreview" class="cover-preview" src="' + escAttr(post.cover_image) + '" alt="Cover" />'
+              : '<div id="coverPreview" style="display:none;"></div>') +
+            '<div class="cover-actions">' +
+              '<label class="cover-upload-label">' +
+                '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M7.47 1.97a.75.75 0 0 1 1.06 0l3.5 3.5a.75.75 0 0 1-1.06 1.06L9 4.56v7.19a.75.75 0 0 1-1.5 0V4.56L5.53 6.53a.75.75 0 0 1-1.06-1.06l3-3z"/><path d="M3.25 14a.75.75 0 0 1 0-1.5h9.5a.75.75 0 0 1 0 1.5h-9.5z"/></svg>' +
+                'Upload image' +
+                '<input type="file" id="coverInput" accept="image/jpeg,image/png,image/gif,image/webp" />' +
+              '</label>' +
+              (post && post.cover_image ? '<button class="btn btn-danger" id="removeCoverBtn">Remove</button>' : '') +
+            '</div>' +
+            '<p class="cover-hint">JPEG, PNG, GIF or WebP · max 8 MB</p>' +
+          '</div>';
+      }
+
       panel.innerHTML =
         '<div class="editor-card">' +
           '<h2>' + (post ? 'Edit post' : 'New post') + '</h2>' +
           '<label for="edTitle">Title</label>' +
           '<input type="text" id="edTitle" value="' + (post ? escAttr(post.title) : '') + '" placeholder="Post title" />' +
+          coverHtml +
           '<label for="edBody">Body <span style="font-weight:400;color:#57606a;">(Markdown supported)</span></label>' +
           '<textarea id="edBody" placeholder="Write your post here…">' + (post ? escHtml(post.body) : '') + '</textarea>' +
           '<div class="checkbox-row">' +
@@ -501,6 +567,58 @@
       document.getElementById('saveBtn').addEventListener('click', function () { savePost(id); });
       var delBtn = document.getElementById('deleteBtn');
       if (delBtn) delBtn.addEventListener('click', function () { deletePost(id); });
+
+      // Cover image upload
+      var coverInput = document.getElementById('coverInput');
+      if (coverInput) {
+        coverInput.addEventListener('change', function () {
+          if (!coverInput.files || !coverInput.files[0]) return;
+          var formData = new FormData();
+          formData.append('image', coverInput.files[0]);
+          toast('Uploading…');
+          fetch('/api/posts/' + id + '/image', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+          })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+              if (!res.ok) throw new Error(res.d.error || 'Upload failed');
+              toast('Cover image uploaded');
+              // Update preview inline
+              var preview = document.getElementById('coverPreview');
+              if (preview.tagName === 'DIV') {
+                // Replace placeholder div with an img
+                var img = document.createElement('img');
+                img.id = 'coverPreview';
+                img.className = 'cover-preview';
+                img.alt = 'Cover';
+                img.src = res.d.cover_image;
+                preview.parentNode.replaceChild(img, preview);
+              } else {
+                preview.src = res.d.cover_image;
+              }
+              // Add remove button if not present
+              var actions = document.querySelector('.cover-actions');
+              if (actions && !document.getElementById('removeCoverBtn')) {
+                var rb = document.createElement('button');
+                rb.className = 'btn btn-danger';
+                rb.id = 'removeCoverBtn';
+                rb.textContent = 'Remove';
+                actions.appendChild(rb);
+                rb.addEventListener('click', function () { removeCover(id); });
+              }
+              loadPosts();
+            })
+            .catch(function (err) { toast(err.message); });
+        });
+      }
+
+      // Cover image remove
+      var removeCoverBtn = document.getElementById('removeCoverBtn');
+      if (removeCoverBtn) {
+        removeCoverBtn.addEventListener('click', function () { removeCover(id); });
+      }
     }
 
     function savePost(id) {
@@ -540,6 +658,21 @@
           toast(err.message);
           saveBtn.disabled = false;
         });
+    }
+
+    function removeCover(id) {
+      if (!confirm('Remove the cover image?')) return;
+      fetch('/api/posts/' + id + '/image', {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function () {
+          toast('Cover image removed');
+          loadPosts();
+          openEditor(id);
+        })
+        .catch(function () { toast('Remove failed'); });
     }
 
     function deletePost(id) {

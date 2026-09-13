@@ -17,6 +17,7 @@ services:
       - ADMIN_PASS=${ADMIN_PASS:-changeme}
       - JWT_SECRET=${JWT_SECRET:-changeme-secret}
       - DB_PATH=/data/posts.db
+      - IMAGES_DIR=/data/images
     volumes:
       - blog_data:/data
 
