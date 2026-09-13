@@ -693,7 +693,7 @@
               '<input type="file" id="inlineImgInput" accept="image/jpeg,image/png,image/gif,image/webp" />' +
             '</label>' +
           '</div>' +
-          '<textarea id="edBody" placeholder="Write your post here…">' + (post ? escHtml(post.body) : '') + '</textarea>' +
+          '<textarea id="edBody" placeholder="Write your post here…">' + (post ? post.body : '') + '</textarea>' +
           '<div class="checkbox-row">' +
             '<input type="checkbox" id="edPublished" ' + (post && post.published ? 'checked' : '') + ' />' +
             '<label for="edPublished">Published</label>' +
