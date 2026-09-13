@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Keith Hinds Blog</title>
+  <title>Admin — Keith Hinds</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -247,38 +247,6 @@
       border-bottom: 1px solid #e5e7eb;
     }
 
-    /* ── Cover image section ── */
-    .cover-image-section {
-      margin-bottom: 1rem;
-      padding: 1rem;
-      border: 1px dashed #e5e7eb;
-      border-radius: 6px;
-      background: #f7f8fa;
-    }
-
-    .cover-image-section label {
-      margin-bottom: 0.6rem;
-    }
-
-    .cover-preview {
-      width: 100%;
-      max-height: 180px;
-      object-fit: cover;
-      border-radius: 5px;
-      border: 1px solid #e5e7eb;
-      margin-bottom: 0.65rem;
-      display: block;
-    }
-
-    .cover-actions {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .cover-actions input[type="file"] { display: none; }
-
     .editor-actions {
       display: flex;
       gap: 0.65rem;
@@ -362,7 +330,7 @@
   <!-- Login screen -->
   <div id="loginScreen">
     <div class="login-card">
-      <h1>Blog Admin</h1>
+      <h1>Admin</h1>
       <p>Enter your password to continue.</p>
       <form id="loginForm">
         <label for="passwordInput">Password</label>
@@ -370,17 +338,13 @@
         <div id="loginError" class="form-error" style="display:none;"></div>
         <button type="submit" class="btn btn-primary" style="width:100%;" id="loginBtn">Sign in</button>
       </form>
-      <a href="/" class="btn btn-outline" style="width:100%;margin-top:0.75rem;justify-content:center;">← Home</a>
     </div>
   </div>
 
   <!-- Admin screen -->
   <div id="adminScreen">
     <div class="admin-header">
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-        <a href="/" class="btn btn-outline">← Home</a>
-        <span class="title">Blog Admin</span>
-      </div>
+      <span class="title">Admin</span>
       <button class="btn btn-outline" id="logoutBtn">Sign out</button>
     </div>
     <div class="admin-body">
@@ -452,7 +416,8 @@
     document.getElementById('logoutBtn').addEventListener('click', function () {
       token = '';
       sessionStorage.removeItem('admin_token');
-      window.location.href = '/';
+      document.getElementById('adminScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
     });
 
     // ── Show admin ─────────────────────────────────────────────────────────────
@@ -515,20 +480,6 @@
       var post = id ? posts.find(function (p) { return p.id === id; }) : null;
       var panel = document.getElementById('editorPanel');
 
-      var coverSection = post
-        ? '<div class="cover-image-section">' +
-            '<label>Cover image</label>' +
-            (post.cover_image
-              ? '<img class="cover-preview" id="coverPreview" src="' + escAttr(post.cover_image) + '" alt="Cover" />'
-              : '<div id="coverPreview" style="font-size:0.82rem;color:#57606a;margin-bottom:0.65rem;">No cover image set.</div>') +
-            '<div class="cover-actions">' +
-              '<label class="btn btn-outline" for="coverFileInput" style="cursor:pointer;">Upload image</label>' +
-              '<input type="file" id="coverFileInput" accept="image/jpeg,image/png,image/gif,image/webp" />' +
-              (post.cover_image ? '<button class="btn btn-danger" id="removeCoverBtn">Remove</button>' : '') +
-            '</div>' +
-          '</div>'
-        : '';
-
       panel.innerHTML =
         '<div class="editor-card">' +
           '<h2>' + (post ? 'Edit post' : 'New post') + '</h2>' +
@@ -536,7 +487,6 @@
           '<input type="text" id="edTitle" value="' + (post ? escAttr(post.title) : '') + '" placeholder="Post title" />' +
           '<label for="edBody">Body <span style="font-weight:400;color:#57606a;">(Markdown supported)</span></label>' +
           '<textarea id="edBody" placeholder="Write your post here…">' + (post ? escHtml(post.body) : '') + '</textarea>' +
-          coverSection +
           '<div class="checkbox-row">' +
             '<input type="checkbox" id="edPublished" ' + (post && post.published ? 'checked' : '') + ' />' +
             '<label for="edPublished">Published</label>' +
@@ -551,51 +501,6 @@
       document.getElementById('saveBtn').addEventListener('click', function () { savePost(id); });
       var delBtn = document.getElementById('deleteBtn');
       if (delBtn) delBtn.addEventListener('click', function () { deletePost(id); });
-
-      // Cover image upload
-      var coverInput = document.getElementById('coverFileInput');
-      if (coverInput) {
-        coverInput.addEventListener('change', function () {
-          if (!coverInput.files.length) return;
-          var formData = new FormData();
-          formData.append('image', coverInput.files[0]);
-          var lbl = document.querySelector('label[for="coverFileInput"]');
-          lbl.textContent = 'Uploading…';
-          fetch('/api/posts/' + id + '/image', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
-            body: formData
-          })
-            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-            .then(function (res) {
-              if (!res.ok) throw new Error(res.d.error || 'Upload failed');
-              toast('Cover image uploaded');
-              selectedId = id;
-              loadPosts();
-              setTimeout(function () { openEditor(id); }, 200);
-            })
-            .catch(function (err) { toast(err.message); lbl.textContent = 'Upload image'; });
-        });
-      }
-
-      // Cover image remove
-      var removeCoverBtn = document.getElementById('removeCoverBtn');
-      if (removeCoverBtn) {
-        removeCoverBtn.addEventListener('click', function () {
-          fetch('/api/posts/' + id + '/image', {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token }
-          })
-            .then(function (r) { return r.json(); })
-            .then(function () {
-              toast('Cover image removed');
-              selectedId = id;
-              loadPosts();
-              setTimeout(function () { openEditor(id); }, 200);
-            })
-            .catch(function () { toast('Remove failed'); });
-        });
-      }
     }
 
     function savePost(id) {
