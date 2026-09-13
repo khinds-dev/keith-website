@@ -270,54 +270,72 @@
       margin-bottom: 1rem;
     }
 
-    /* Image pan/zoom picker container */
-    .focal-wrap {
+    /* ── Cropper ── */
+    /* Outer canvas: full image visible with darkened surround */
+    .cropper-canvas {
       position: relative;
       width: 100%;
-      height: 200px;
-      overflow: hidden;
+      background: #1a1a1a;
       border-radius: 6px;
       border: 1px solid #e5e7eb;
       margin-bottom: 0.6rem;
       cursor: grab;
-      background: #f7f8fa;
       user-select: none;
+      overflow: hidden;
     }
 
-    .focal-wrap.dragging { cursor: grabbing; }
+    .cropper-canvas.dragging { cursor: grabbing; }
 
-    .focal-img {
+    /* The image itself — positioned freely by JS */
+    .cropper-img {
       position: absolute;
-      /* natural size; JS applies transform: translate + scale */
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      display: block;
       pointer-events: none;
-      transform-origin: center center;
+      transform-origin: 0 0;
       will-change: transform;
     }
 
-    /* Overlay hint shown before first interaction */
-    .focal-hint-overlay {
+    /* Fixed crop-box cutout — border only, no clip */
+    .crop-box {
       position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
       pointer-events: none;
+      border-radius: 2px;
     }
 
-    .focal-hint-badge {
-      background: rgba(0,0,0,0.55);
+    /* Rule-of-thirds grid inside crop box */
+    .crop-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px);
+      background-size: 33.33% 33.33%;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .cropper-canvas.dragging .crop-grid { opacity: 1; }
+
+    /* Hint badge */
+    .crop-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
       color: #fff;
-      font-size: 0.75rem;
-      padding: 0.3rem 0.75rem;
+      font-size: 0.72rem;
+      padding: 0.25rem 0.65rem;
       border-radius: 20px;
+      white-space: nowrap;
+      pointer-events: none;
       opacity: 1;
       transition: opacity 0.3s;
     }
 
-    .focal-hint-badge.hide { opacity: 0; }
+    .crop-hint.hide { opacity: 0; }
 
     /* Zoom row */
     .zoom-row {
@@ -614,13 +632,14 @@
           '<div class="cover-section">' +
             '<label>Cover image</label>' +
             (hasCover
-              ? '<div class="focal-wrap" id="focalWrap">' +
-                  '<img class="focal-img" id="focalImg" src="' + escAttr(post.cover_image) + '" alt="" />' +
-                  '<div class="focal-hint-overlay"><span class="focal-hint-badge" id="focalHint">Drag to pan</span></div>' +
+              ? '<div class="cropper-canvas" id="cropperCanvas">' +
+                  '<img class="cropper-img" id="cropperImg" src="' + escAttr(post.cover_image) + '" alt="" />' +
+                  '<div class="crop-box" id="cropBox"><div class="crop-grid"></div></div>' +
+                  '<span class="crop-hint" id="cropHint">Drag to reposition · use slider to zoom</span>' +
                 '</div>' +
                 '<div class="zoom-row">' +
                   '<label for="zoomSlider">Zoom</label>' +
-                  '<input type="range" id="zoomSlider" min="0.5" max="3" step="0.05" value="' + fz + '" />' +
+                  '<input type="range" id="zoomSlider" min="1" max="5" step="0.05" value="' + fz + '" />' +
                   '<span class="zoom-val" id="zoomVal">' + fz.toFixed(2) + '×</span>' +
                 '</div>'
               : '') +
@@ -632,7 +651,7 @@
               '</label>' +
               (hasCover ? '<button class="btn btn-danger" id="removeCoverBtn">Remove</button>' : '') +
             '</div>' +
-            '<p class="cover-hint">JPEG, PNG, GIF or WebP · max 8 MB' + (hasCover ? ' · Drag to pan · use slider to zoom' : '') + '</p>' +
+            '<p class="cover-hint">JPEG, PNG, GIF or WebP · max 8 MB</p>' +
           '</div>';
       }
 
@@ -659,46 +678,107 @@
       var delBtn = document.getElementById('deleteBtn');
       if (delBtn) delBtn.addEventListener('click', function () { deletePost(id); });
 
-      // ── Pan / zoom picker ─────────────────────────────────────────────────────
-      var focalWrap = document.getElementById('focalWrap');
-      if (focalWrap) {
-        var focalImg   = document.getElementById('focalImg');
-        var zoomSlider = document.getElementById('zoomSlider');
-        var zoomVal    = document.getElementById('zoomVal');
-        var focalHint  = document.getElementById('focalHint');
+      // ── Cropper ───────────────────────────────────────────────────────────────
+      var cropperCanvas = document.getElementById('cropperCanvas');
+      if (cropperCanvas) {
+        var cropperImg  = document.getElementById('cropperImg');
+        var cropBox     = document.getElementById('cropBox');
+        var cropHint    = document.getElementById('cropHint');
+        var zoomSlider  = document.getElementById('zoomSlider');
+        var zoomVal     = document.getElementById('zoomVal');
 
-        // fx/fy here are pixel offsets (translateX, translateY); fz is scale.
-        // Convert stored % focal values back to pixel offsets on first load.
-        var ww = focalWrap.offsetWidth  || 320;
-        var wh = focalWrap.offsetHeight || 200;
-        // stored as 0-100 percent relative to wrap size → convert to pixel offset from centre
-        var tx = ((fx / 100) * ww) - ww / 2;
-        var ty = ((fy / 100) * wh) - wh / 2;
+        // Crop box aspect ratio (matches blog card image height 160px / typical width ~340px ≈ 16:9 ish)
+        // Use 16:9 as the standard crop ratio
+        var CROP_RATIO = 16 / 9;
 
-        var focalSaveTimer;
+        // imgX/imgY = top-left of the image in canvas coordinates (pixels)
+        // imgW/imgH = rendered size of the image at current zoom
+        // fz        = zoom multiplier (1 = image fits inside crop box)
+        var canvasW, canvasH, cropW, cropH, cropL, cropT;
+        var natW = 0, natH = 0;   // natural image dimensions
+        var baseW, baseH;         // image size at fz=1 (fitted to crop box)
+        var imgX = 0, imgY = 0;   // current image top-left offset
         var isDragging = false;
-        var dragStartX, dragStartY, dragStartTx, dragStartTy;
+        var dragStartX, dragStartY, dragStartIX, dragStartIY;
+        var saveTimer;
 
-        function applyTransform() {
-          focalImg.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + fz + ')';
+        function setupCropper() {
+          canvasW = cropperCanvas.offsetWidth;
+          // Canvas height: enough to show full image at fit-zoom with crop box visible
+          // We fix the crop box size and pad the canvas around it.
+          cropH = Math.round(canvasW * 0.5);   // crop box height = 50% of canvas width
+          cropW = Math.round(cropH * CROP_RATIO);
+          if (cropW > canvasW) { cropW = canvasW; cropH = Math.round(cropW / CROP_RATIO); }
+          canvasH = cropH + 80; // 40px padding top and bottom outside crop box
+          cropperCanvas.style.height = canvasH + 'px';
+
+          cropL = Math.round((canvasW - cropW) / 2);
+          cropT = Math.round((canvasH - cropH) / 2);
+
+          // Position crop box
+          cropBox.style.left   = cropL + 'px';
+          cropBox.style.top    = cropT + 'px';
+          cropBox.style.width  = cropW + 'px';
+          cropBox.style.height = cropH + 'px';
+
+          if (natW === 0 || natH === 0) return; // image not loaded yet
+
+          // fz=1: image fits entirely inside the crop box (contain, not cover)
+          var scaleToFit = Math.min(cropW / natW, cropH / natH);
+          baseW = natW * scaleToFit;
+          baseH = natH * scaleToFit;
+
+          // Restore position from stored focal (%) values
+          // fx/fy = where the crop-box centre sits within the image, as %
+          // At fz=1, image is centred in crop box.
+          // imgX = cropL + cropW/2 - (fx/100)*baseW*fz
+          // imgY = cropT + cropH/2 - (fy/100)*baseH*fz
+          var curW = baseW * fz;
+          var curH = baseH * fz;
+          imgX = cropL + cropW / 2 - (fx / 100) * curW;
+          imgY = cropT + cropH / 2 - (fy / 100) * curH;
+
+          clampImg();
+          applyImgTransform();
         }
 
-        function clampTranslate() {
-          // Limit pan so the image never shows the background through an edge.
-          // The image already fills 100%×100% at scale 1; at scale fz it overflows
-          // by (fz-1)/2 * dimension on each side.
-          var maxX = ww  * (fz - 1) / 2;
-          var maxY = wh * (fz - 1) / 2;
-          tx = Math.max(-maxX, Math.min(maxX, tx));
-          ty = Math.max(-maxY, Math.min(maxY, ty));
+        function applyImgTransform() {
+          var curW = baseW * fz;
+          var curH = baseH * fz;
+          cropperImg.style.width  = curW + 'px';
+          cropperImg.style.height = curH + 'px';
+          cropperImg.style.left   = imgX + 'px';
+          cropperImg.style.top    = imgY + 'px';
+        }
+
+        function clampImg() {
+          // The image must always cover the crop box
+          var curW = baseW * fz;
+          var curH = baseH * fz;
+          // imgX: right edge of image must be >= right edge of crop box
+          var minX = cropL + cropW - curW;
+          var maxX = cropL;
+          // if image is smaller than crop box in a dimension, centre it
+          if (curW <= cropW) { imgX = cropL + (cropW - curW) / 2; }
+          else { imgX = Math.max(minX, Math.min(maxX, imgX)); }
+          if (curH <= cropH) { imgY = cropT + (cropH - curH) / 2; }
+          else {
+            var minY = cropT + cropH - curH;
+            var maxY = cropT;
+            imgY = Math.max(minY, Math.min(maxY, imgY));
+          }
         }
 
         function saveFocal() {
-          // Persist as % (0-100) for back-compat with API
-          var pctX = ((tx + ww / 2) / ww) * 100;
-          var pctY = ((ty + wh / 2) / wh) * 100;
-          clearTimeout(focalSaveTimer);
-          focalSaveTimer = setTimeout(function () {
+          if (!baseW) return;
+          // Convert imgX/imgY back to fx/fy percentages:
+          // crop-box centre relative to image top-left, as % of current image size
+          var curW = baseW * fz;
+          var curH = baseH * fz;
+          var pctX = ((cropL + cropW / 2) - imgX) / curW * 100;
+          var pctY = ((cropT + cropH / 2) - imgY) / curH * 100;
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(function () {
             fetch('/api/posts/' + id + '/image', {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -713,33 +793,47 @@
             : { x: e.clientX, y: e.clientY };
         }
 
-        applyTransform();
+        // Wait for image natural dimensions
+        if (cropperImg.complete && cropperImg.naturalWidth) {
+          natW = cropperImg.naturalWidth;
+          natH = cropperImg.naturalHeight;
+          setupCropper();
+        } else {
+          cropperImg.addEventListener('load', function () {
+            natW = cropperImg.naturalWidth;
+            natH = cropperImg.naturalHeight;
+            setupCropper();
+          });
+        }
 
-        focalWrap.addEventListener('mousedown', function (e) {
+        // Drag to pan
+        cropperCanvas.addEventListener('mousedown', function (e) {
+          if (!baseW) return;
           isDragging = true;
           var p = clientXY(e);
           dragStartX = p.x; dragStartY = p.y;
-          dragStartTx = tx; dragStartTy = ty;
-          focalWrap.classList.add('dragging');
-          if (focalHint) focalHint.classList.add('hide');
+          dragStartIX = imgX; dragStartIY = imgY;
+          cropperCanvas.classList.add('dragging');
+          if (cropHint) cropHint.classList.add('hide');
           e.preventDefault();
         });
 
-        focalWrap.addEventListener('touchstart', function (e) {
+        cropperCanvas.addEventListener('touchstart', function (e) {
+          if (!baseW) return;
           isDragging = true;
           var p = clientXY(e);
           dragStartX = p.x; dragStartY = p.y;
-          dragStartTx = tx; dragStartTy = ty;
-          if (focalHint) focalHint.classList.add('hide');
+          dragStartIX = imgX; dragStartIY = imgY;
+          if (cropHint) cropHint.classList.add('hide');
         }, { passive: true });
 
         document.addEventListener('mousemove', function (e) {
           if (!isDragging) return;
           var p = clientXY(e);
-          tx = dragStartTx + (p.x - dragStartX);
-          ty = dragStartTy + (p.y - dragStartY);
-          clampTranslate();
-          applyTransform();
+          imgX = dragStartIX + (p.x - dragStartX);
+          imgY = dragStartIY + (p.y - dragStartY);
+          clampImg();
+          applyImgTransform();
           saveFocal();
         });
 
@@ -747,23 +841,32 @@
           if (!isDragging) return;
           e.preventDefault();
           var p = clientXY(e);
-          tx = dragStartTx + (p.x - dragStartX);
-          ty = dragStartTy + (p.y - dragStartY);
-          clampTranslate();
-          applyTransform();
+          imgX = dragStartIX + (p.x - dragStartX);
+          imgY = dragStartIY + (p.y - dragStartY);
+          clampImg();
+          applyImgTransform();
           saveFocal();
         }, { passive: false });
 
-        document.addEventListener('mouseup',  function () { isDragging = false; focalWrap.classList.remove('dragging'); });
+        document.addEventListener('mouseup',  function () { isDragging = false; cropperCanvas.classList.remove('dragging'); });
         document.addEventListener('touchend', function () { isDragging = false; });
 
-        // Zoom slider
+        // Zoom slider — zoom around crop-box centre
         zoomSlider.addEventListener('input', function () {
+          if (!baseW) return;
+          var prevFz = fz;
           fz = parseFloat(zoomSlider.value);
           zoomVal.textContent = fz.toFixed(2) + '×';
-          clampTranslate();
-          applyTransform();
-          if (focalHint) focalHint.classList.add('hide');
+          // Keep the crop-box centre point fixed in image space
+          var centreX = cropL + cropW / 2;
+          var centreY = cropT + cropH / 2;
+          var relX = centreX - imgX; // offset of crop-centre from img top-left (at prevFz)
+          var relY = centreY - imgY;
+          imgX = centreX - relX * (fz / prevFz);
+          imgY = centreY - relY * (fz / prevFz);
+          clampImg();
+          applyImgTransform();
+          if (cropHint) cropHint.classList.add('hide');
           saveFocal();
         });
       }
