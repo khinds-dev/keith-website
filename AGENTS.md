@@ -2,6 +2,25 @@
 
 This file provides guidance to agents when working with code in this repository.
 
+---
+
+## ⛔ DEPLOYMENT HOLD — READ THIS FIRST
+
+**Never deploy to the Synology NAS unless explicitly told to do so in that message.**
+
+The user works across multiple machines. Only one of them has Tailscale access to the Synology (100.123.139.84). Running `scp` or `ssh` deployment commands from the wrong machine will fail or hang.
+
+**This rule overrides everything else in this file, including the Deployment Order section below.**
+
+The correct sequence is always:
+1. Commit and push to GitHub — always safe to do.
+2. **Stop. Do not SCP, do not SSH, do not run Docker commands.**
+3. Wait for the user to explicitly say something like "deploy now", "go ahead and deploy", or "SCP to Synology".
+
+No exceptions. Even if the work is complete, even if previous instructions say "commit and deploy", even if this is the last step of a phase — **stop after the push and wait.**
+
+---
+
 ## Non-Obvious Project Facts & Environment
 - **Local Dev OS**: Windows 10 with PowerShell.
 - **Git binary**: Not in system `$PATH` — always invoke `& "C:\Program Files\Git\bin\git.exe"`.
