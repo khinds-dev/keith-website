@@ -80,11 +80,11 @@ This section tracks the full redesign brief agreed in the planning session. Upda
 
 ### Phase 1 — Foundation (shared assets, no visible behaviour change)
 
-- [ ] Extract shared CSS into `css/shared.css` — design tokens (CSS custom properties), reset, navbar, hamburger, footer, base layout; update all existing pages to link to it
-- [ ] Extract shared hamburger/nav JS into `js/nav.js`; reference it from all pages and remove the copy-pasted inline script
-- [ ] Add global SEO basics to all existing pages: `<meta name="description">`, canonical `<link>`, Open Graph tags (`og:title`, `og:description`, `og:url`, `og:image`)
-- [ ] Create custom 404 page (`404.html` served by nginx `error_page 404`); update `nginx.conf`; copy in `Dockerfile`; match site visual style
-- [ ] Add `robots.txt` and `sitemap.xml` to the nginx-served root; update `nginx.conf` COPY and `Dockerfile`
+- [x] Extract shared CSS into `css/shared.css` — design tokens (CSS custom properties), reset, navbar, hamburger, footer, base layout; update all existing pages to link to it
+- [x] Extract shared hamburger/nav JS into `js/nav.js`; reference it from all pages and remove the copy-pasted inline script
+- [x] Add global SEO basics to all existing pages: `<meta name="description">`, canonical `<link>`, Open Graph tags (`og:title`, `og:description`, `og:url`, `og:image`)
+- [x] Create custom 404 page (`404.html` served by nginx `error_page 404`); update `nginx.conf`; copy in `Dockerfile`; match site visual style
+- [x] Add `robots.txt` and `sitemap.xml` to the nginx-served root; update `nginx.conf` COPY and `Dockerfile`
 
 ---
 

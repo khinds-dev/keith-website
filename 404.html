@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Not Found — Keith Hinds</title>
+  <link rel="stylesheet" href="/css/shared.css" />
+  <style>
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2rem;
+    }
+
+    .not-found {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .not-found .code {
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #e5e7eb;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .not-found h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.65rem;
+    }
+
+    .not-found p {
+      font-size: 0.9rem;
+      color: #57606a;
+      line-height: 1.7;
+      margin-bottom: 1.75rem;
+    }
+
+    .not-found .home-link {
+      display: inline-block;
+      padding: 0.55rem 1.5rem;
+      background: #1f2328;
+      color: #ffffff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .not-found .home-link:hover { background: #3b4045; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="site-name">Keith Hinds</a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/portfolio">Portfolio</a>
+      <a href="/repos">Repos</a>
+      <a href="/blog">Blog</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main>
+    <div class="not-found">
+      <div class="code">404</div>
+      <h1>Page not found</h1>
+      <p>The page you're looking for doesn't exist or has been moved.</p>
+      <a href="/" class="home-link">Back to Home</a>
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="yr"></span> Keith Hinds
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </footer>
+
+  <script src="/js/nav.js"></script>
+
+</body>
+</html>

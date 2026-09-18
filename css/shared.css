@@ -1,0 +1,121 @@
+/* ── shared.css — design tokens, reset, navbar, hamburger, footer ── */
+
+/* Design tokens */
+:root {
+  --color-bg:      #ffffff;
+  --color-surface: #f7f8fa;
+  --color-border:  #e5e7eb;
+  --color-text:    #1f2328;
+  --color-muted:   #57606a;
+  --color-accent:  #3b82d4;
+  --color-green:   #2da44e;
+  --nav-height:    52px;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Nav bar ── */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: var(--nav-height);
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.navbar .site-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-links a {
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.nav-links a:hover { background: var(--color-surface); color: var(--color-text); }
+.nav-links a.active { font-weight: 600; color: var(--color-text); }
+
+/* Hamburger — mobile only */
+.hamburger {
+  display: none;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0.4rem 0.5rem;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 200;
+}
+
+.hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--color-text);
+  border-radius: 2px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 640px) {
+  .hamburger { display: flex; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    flex-direction: column;
+    padding: 0.5rem 0;
+    z-index: 100;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a {
+    padding: 0.75rem 2rem;
+    border-radius: 0;
+    border-bottom: 1px solid #f0f1f3;
+  }
+  .nav-links a:last-child { border-bottom: none; }
+}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--color-border);
+  padding: 1.25rem 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
