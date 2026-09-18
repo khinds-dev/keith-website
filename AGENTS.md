@@ -67,3 +67,109 @@ To verify content is actually live before concluding the user has a cache issue:
 ## Cloudflare Tunnel Gotchas
 - Token-based tunnel (`keith-cloudflared` container, ID `a7eb6006-0c73-413a-aee0-ed634e6e1f04`).
 - Internal routing must target `keith-website:80` (Docker service name), **NOT** `localhost:8080`.
+
+---
+
+## Website Redesign — Progress Tracker
+
+This section tracks the full redesign brief agreed in the planning session. Update the status marker for each task as work is completed. A new agent session must read this section first and continue from the first incomplete task.
+
+**Status key:** `[ ]` not started · `[-]` in progress · `[x]` done
+
+---
+
+### Phase 1 — Foundation (shared assets, no visible behaviour change)
+
+- [ ] Extract shared CSS into `css/shared.css` — design tokens (CSS custom properties), reset, navbar, hamburger, footer, base layout; update all existing pages to link to it
+- [ ] Extract shared hamburger/nav JS into `js/nav.js`; reference it from all pages and remove the copy-pasted inline script
+- [ ] Add global SEO basics to all existing pages: `<meta name="description">`, canonical `<link>`, Open Graph tags (`og:title`, `og:description`, `og:url`, `og:image`)
+- [ ] Create custom 404 page (`404.html` served by nginx `error_page 404`); update `nginx.conf`; copy in `Dockerfile`; match site visual style
+- [ ] Add `robots.txt` and `sitemap.xml` to the nginx-served root; update `nginx.conf` COPY and `Dockerfile`
+
+---
+
+### Phase 2 — New pages (additive only, no existing pages broken)
+
+- [ ] New nav: change links from [Home, Portfolio, Repos, Blog, Contact] → [Home, About, Work, Writing, Contact] across **all** page files; keep `/portfolio` and `/repos` URLs intact but update nav labels and active states; "Repos" becomes "GitHub" in the display label on the repos page header
+- [ ] Create `/about` (`about/index.html`) — personal background, career (electronic engineering → IBM software), how I work, interests outside tech; add `COPY` to `Dockerfile` and `nginx.conf` try_files support
+- [ ] Create `/work` (`work/index.html`) — professional experience timeline, IBM roles, technical areas, featured projects list; add `COPY` to `Dockerfile`
+- [ ] Create `/work/this-website` (`work/this-website/index.html`) — architecture write-up, full stack, infrastructure SVG diagram, deployment model; add `COPY` to `Dockerfile`
+- [ ] Create `/now` (`now/index.html`) — what Keith is currently building, learning, exploring, and doing outside work; "Last updated: [date]" at bottom; add `COPY` to `Dockerfile`
+- [ ] Create `/interests` (`interests/index.html`) — overview cards for aviation, football, travel, dogs, technology, history, film/sci-fi; personal tone; add `COPY` to `Dockerfile`
+
+---
+
+### Phase 3 — Existing page improvements
+
+- [ ] **Homepage** (`index.html`): tighten hero (shorter bio), add condensed Now section linking to `/now`, show latest 3 posts dynamically from API, show 2–3 featured projects, add beyond-code interests teaser; remove the skills matrix and full timeline (those live on `/about` and `/work`)
+- [ ] **Blog listing** (`blog/index.html`): add excerpt display on tiles (derive from first ~160 chars of body client-side); add reading time estimate; update nav to show "Writing" as active label
+- [ ] **Blog post** (`blog/post/index.html`): fix Markdown renderer — list wrapping bug (multiple `<li>` items each getting their own `<ul>`), ordered list support, heading IDs, correct fenced code language stripping; add dynamic Open Graph meta tags after post loads; update `<title>` format
+- [ ] **Repos page** (`repos/index.html`): improve empty/error/loading states; add a brief personal intro line; clean up mobile layout; update page header to say "GitHub" not "GitHub Repos"
+- [ ] **Contact page** (`contact/index.html`): update intro copy to match brief tone; add per-field inline validation error messages; prevent double-submit on fast re-click
+
+---
+
+### Phase 4 — CSS cleanup, accessibility, API improvements
+
+- [ ] Replace all remaining per-page duplicate CSS with references to `css/shared.css`; verify visual consistency across every page after extraction
+- [ ] Accessibility audit: fix heading hierarchy on every page; add missing `aria-label`s; ensure keyboard focus styles are visible; check colour contrast of muted text (`#57606a` on `#ffffff`); add meaningful `alt` text to all images
+- [ ] Responsive audit: fix layouts on mobile (≤480px) and tablet (≤768px) for homepage hero, work/experience timeline, blog post body, repos filter bar
+- [ ] **API** (`api/server.js`): add `excerpt` and `read_time` fields to `GET /api/posts` response — derived server-side from `body`, not stored; backward compatible
+- [ ] **API** (`api/server.js`): add `POST /api/contact` endpoint — validate name/email/message, store in a new `contacts` table (or forward via email if SMTP env vars are set); remove sole reliance on Formspree
+
+---
+
+### Phase 5 — Content & SEO
+
+- [ ] Write genuine content for `/about` — career story, degree while working full-time, IBM journey, problem-solving approach, outside interests
+- [ ] Write genuine content for `/now` — current work focus, personal projects in progress, learning areas, outside-work activities; include last updated date
+- [ ] Write 2–3 project entries for `/work` beyond the website itself (pick from GitHub repos); write the `/work/this-website` architecture page properly
+- [ ] Generate `sitemap.xml` listing all public pages with accurate `lastmod` dates; add JSON-LD `Person` structured data to homepage
+- [ ] Write a short interests overview for `/interests` — genuine, personal, no filler
+
+---
+
+### Phase 6 — Final review & deployment
+
+- [ ] Full cross-page visual consistency check — typography, spacing, nav active states, footer, responsive behaviour
+- [ ] Verify all internal links work on every page (including new pages)
+- [ ] Commit, push to GitHub, SCP all changed files to Synology, rebuild Docker containers
+- [ ] Post-deploy verification: `curl` each route on the Synology to confirm 200s; check 404 page works; check blog API still returns posts
+
+---
+
+### Rollback point
+
+The commit immediately before the redesign began is tagged **`pre-redesign`** (commit `f52dc58`).
+
+To revert the entire site to that state:
+```bash
+git checkout pre-redesign
+```
+
+To revert and create a new branch from it:
+```bash
+git checkout -b rollback-branch pre-redesign
+```
+
+To hard-reset `main` back to that point (destructive — discards all redesign commits):
+```bash
+git checkout main
+git reset --hard pre-redesign
+git push --force origin main
+```
+
+The tag is pushed to GitHub (`origin/pre-redesign`) so it survives any local reset.
+
+---
+
+### Decisions & context (read before starting work)
+
+- **Do not convert to React, Next.js, Vue, Astro or any framework.** Plain HTML/CSS/JS + Node/Express is the correct stack for this project.
+- **Navigation after Phase 2:** Home · About · Work · Writing · Contact. GitHub is a sub-item or accessible via the Repos page; it does not need a primary nav slot.
+- **`/blog` URL stays intact** (blog/index.html, blog/post/index.html); only the nav label and page heading change to "Writing". No redirects needed.
+- **`/portfolio` stays intact** — the nav item is removed from primary nav (it folds into `/work`) but the URL must keep returning the existing page (no 404).
+- **Markdown renderer stays custom** (no new npm dependencies) but must be fixed for the known bugs.
+- **Contact form:** keep Formspree as primary for now; the API endpoint is a Phase 4 enhancement only.
+- **Cloudflare tunnel token** is already committed in `docker-compose.yml` — do not rotate or redact it in code changes.
+- **Profile photo** is `profile.jpg` in the root — reference as `/profile.jpg` from all pages.
