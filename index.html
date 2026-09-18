@@ -55,7 +55,7 @@
     .hero-text .role {
       font-size: 1rem;
       color: #57606a;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
       font-weight: 400;
     }
 
@@ -64,13 +64,13 @@
       color: #444d56;
       line-height: 1.7;
       max-width: 480px;
+      margin-bottom: 1.1rem;
     }
 
-    /* ── Links ── */
+    /* ── Hero links ── */
     .links {
       display: flex;
       gap: 0.65rem;
-      margin-top: 1.25rem;
       flex-wrap: wrap;
     }
 
@@ -78,24 +78,21 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.45rem 1rem;
+      padding: 0.4rem 0.9rem;
       border: 1px solid #e5e7eb;
       border-radius: 6px;
       text-decoration: none;
       color: #1f2328;
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       font-weight: 500;
-      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      transition: border-color 0.15s, background 0.15s;
     }
 
-    .links a:hover {
-      border-color: #1f2328;
-      background: #f7f8fa;
-    }
+    .links a:hover { border-color: #1f2328; background: #f7f8fa; }
 
     .links a svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       fill: currentColor;
       flex-shrink: 0;
     }
@@ -105,7 +102,7 @@
       flex: 1;
       display: flex;
       justify-content: center;
-      padding: 3rem 2rem;
+      padding: 2rem 2rem 3rem;
     }
 
     .content {
@@ -115,7 +112,7 @@
 
     /* ── Section ── */
     section {
-      margin-bottom: 3rem;
+      margin-bottom: 2.75rem;
     }
 
     section h2 {
@@ -124,23 +121,30 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: #57606a;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.1rem;
       padding-bottom: 0.5rem;
       border-bottom: 1px solid #e5e7eb;
     }
 
-    /* ── Status Card (Now) ── */
-    .status-card {
+    /* ── Now card ── */
+    .now-card {
       background: #f7f8fa;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       padding: 1.1rem 1.35rem;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.7rem;
     }
 
-    .status-header {
+    .now-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .now-card-status {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -156,6 +160,7 @@
       background: #2da44e;
       box-shadow: 0 0 0 3px rgba(45, 164, 78, 0.2);
       display: inline-block;
+      flex-shrink: 0;
       animation: pulse-dot 2s infinite ease-in-out;
     }
 
@@ -164,240 +169,156 @@
       50% { transform: scale(1.15); opacity: 0.75; }
     }
 
-    .status-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.75rem;
+    .now-card-link {
+      font-size: 0.8rem;
+      color: #3b82d4;
+      text-decoration: none;
+      white-space: nowrap;
+      font-weight: 500;
     }
 
-    .status-item {
+    .now-card-link:hover { text-decoration: underline; }
+
+    .now-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .now-item {
       display: flex;
       flex-direction: column;
-      gap: 0.15rem;
+      gap: 0.1rem;
     }
 
-    .status-label {
-      font-size: 0.72rem;
+    .now-item-label {
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: #57606a;
     }
 
-    .status-val {
+    .now-item-val {
       font-size: 0.85rem;
       color: #1f2328;
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
-    /* ── Skills & Tech Stack Matrix ── */
-    .skills-matrix {
+    /* ── Latest posts ── */
+    .post-list {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 0;
     }
 
-    .skill-category-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #57606a;
-      margin-bottom: 0.45rem;
-    }
-
-    .skill-group {
+    .post-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-    }
-
-    .skill-tag {
-      padding: 0.3rem 0.7rem;
-      background: #f7f8fa;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      color: #1f2328;
-      transition: border-color 0.12s, background 0.12s;
-    }
-
-    .skill-tag:hover {
-      background: #ffffff;
-      border-color: #1f2328;
-    }
-
-    /* ── Career & Engineering Timeline ── */
-    .timeline {
-      position: relative;
-      padding-left: 1.5rem;
-    }
-
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 5px;
-      top: 6px;
-      bottom: 6px;
-      width: 2px;
-      background: #e5e7eb;
-    }
-
-    .timeline-item {
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-
-    .timeline-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .timeline-dot {
-      position: absolute;
-      left: -1.5rem;
-      top: 5px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2px solid #1f2328;
-    }
-
-    .timeline-date {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #57606a;
-      margin-bottom: 0.15rem;
-    }
-
-    .timeline-title {
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #1f2328;
-      margin-bottom: 0.25rem;
-    }
-
-    .timeline-desc {
-      font-size: 0.85rem;
-      color: #57606a;
-      line-height: 1.6;
-    }
-
-    /* ── Featured GitHub Repositories Grid ── */
-    .repo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .repo-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 1rem 1.15rem;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
+      align-items: baseline;
       justify-content: space-between;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f2f4;
       text-decoration: none;
       color: inherit;
     }
 
-    .repo-card:hover {
-      border-color: #1f2328;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    .post-row:last-child { border-bottom: none; }
+
+    .post-row:hover .post-row-title { color: #3b82d4; }
+
+    .post-row-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1f2328;
+      line-height: 1.5;
+      transition: color 0.12s;
     }
 
-    .repo-top {
+    .post-row-date {
+      font-size: 0.78rem;
+      color: #57606a;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .post-list-loading {
+      font-size: 0.85rem;
+      color: #57606a;
+      padding: 0.5rem 0;
+    }
+
+    .section-more {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: #3b82d4;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .section-more:hover { text-decoration: underline; }
+
+    /* ── Featured projects ── */
+    .project-list {
       display: flex;
-      align-items: center;
-      gap: 0.45rem;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .project-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid #f0f2f4;
+    }
+
+    .project-row:last-child { border-bottom: none; }
+
+    .project-row-body h3 {
       font-size: 0.9rem;
       font-weight: 600;
-      color: #0969da;
-      margin-bottom: 0.4rem;
+      color: #1f2328;
+      margin-bottom: 0.2rem;
     }
 
-    .repo-top svg {
-      width: 15px;
-      height: 15px;
-      fill: #57606a;
+    .project-row-body p {
+      font-size: 0.82rem;
+      color: #57606a;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .project-row-link {
       flex-shrink: 0;
-    }
-
-    .repo-desc {
-      font-size: 0.8rem;
-      color: #57606a;
-      line-height: 1.5;
-      margin-bottom: 0.85rem;
-    }
-
-    .repo-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-      font-size: 0.75rem;
-      color: #57606a;
-    }
-
-    .repo-lang {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .lang-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .lang-dot.html { background: #e34c26; }
-    .lang-dot.docker { background: #384d54; }
-    .lang-dot.python { background: #3572A5; }
-    .lang-dot.js { background: #f1e05a; }
-
-    /* Projects */
-    .project-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 1rem 0;
-      border-bottom: 1px solid #f0f1f3;
-      gap: 1rem;
-    }
-
-    .project-card:last-child {
-      border-bottom: none;
-    }
-
-    .project-card h3 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .project-card p {
-      font-size: 0.875rem;
-      color: #57606a;
-      line-height: 1.6;
-    }
-
-    .project-card a {
-      flex-shrink: 0;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #57606a;
       text-decoration: none;
       border: 1px solid #e5e7eb;
-      padding: 0.3rem 0.7rem;
+      padding: 0.25rem 0.6rem;
       border-radius: 4px;
       white-space: nowrap;
       align-self: center;
       transition: border-color 0.15s, color 0.15s;
     }
 
-    .project-card a:hover {
-      border-color: #1f2328;
+    .project-row-link:hover { border-color: #1f2328; color: #1f2328; }
+
+    /* ── Interests teaser ── */
+    .interests-teaser {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .interest-pill {
+      font-size: 0.82rem;
+      padding: 0.3rem 0.75rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
       color: #1f2328;
     }
 
@@ -425,24 +346,13 @@
 
     .github-activity-header a:hover { text-decoration: underline; }
 
-    .github-graph-wrap {
-      width: 100%;
-      overflow-x: auto;
-    }
+    .github-graph-wrap { width: 100%; overflow-x: auto; }
 
-    .github-graph {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+    .github-graph { width: 100%; height: auto; display: block; }
 
-    .github-activity-note {
-      font-size: 0.78rem;
-      color: #57606a;
-      margin-top: 0.75rem;
-    }
+    .github-activity-note { font-size: 0.78rem; color: #57606a; margin-top: 0.75rem; }
 
-    /* ── Get in touch button ── */
+    /* ── Get in touch ── */
     .contact-btn {
       display: inline-block;
       margin-top: 0.5rem;
@@ -456,9 +366,7 @@
       transition: background 0.15s;
     }
 
-    .contact-btn:hover {
-      background: #3b4045;
-    }
+    .contact-btn:hover { background: #3b4045; }
 
     /* ── Responsive ── */
     @media (max-width: 560px) {
@@ -468,6 +376,7 @@
         gap: 1.5rem;
       }
       .hero-text h1 { font-size: 1.6rem; }
+      .hero-photo { width: 90px; height: 90px; }
     }
   </style>
 </head>
@@ -495,16 +404,15 @@
       </div>
       <div class="hero-text">
         <h1>Keith Hinds</h1>
-        <p class="role">Software Engineer / Developer / Tester · IBM</p>
+        <p class="role">Software Engineer · IBM</p>
         <p class="bio">
-          Software engineer at IBM with a background in electronic engineering and a thirst for learning.
-          Passionate about IT, technology, and aviation. I graduated from a full-time degree whilst
-          working full-time, and I bring strong problem-solving, communication, and leadership skills
-          to every team I work in.
+          Software engineer at IBM. Electronic engineering background.
+          I build and test software that has to work — and spend my spare time
+          tinkering with infrastructure, writing, and anything aviation-related.
         </p>
-        <nav class="links">
+        <nav class="links" aria-label="External profiles">
           <a href="https://github.com/khinds-dev" target="_blank" rel="noopener">
-            <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
               0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
               -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2
               -3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
@@ -513,6 +421,8 @@
               1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
             GitHub
           </a>
+          <a href="/about">About me</a>
+          <a href="/now">What I'm doing now</a>
         </nav>
       </div>
     </div>
@@ -521,131 +431,98 @@
   <main>
     <div class="content">
 
-      <!-- Currently / Status Widget -->
-      <section>
-        <h2>Status & Focus</h2>
-        <div class="status-card">
-          <div class="status-header">
-            <span class="status-dot"></span>
-            <span>Currently Active</span>
+      <!-- Now / Status -->
+      <section aria-labelledby="now-heading">
+        <h2 id="now-heading">Now</h2>
+        <div class="now-card">
+          <div class="now-card-header">
+            <span class="now-card-status">
+              <span class="status-dot" aria-hidden="true"></span>
+              Currently active
+            </span>
+            <a href="/now" class="now-card-link">Full now page →</a>
           </div>
-          <div class="status-grid">
-            <div class="status-item">
-              <span class="status-label">Building & Exploring</span>
-              <span class="status-val">Agentic AI workflows, self-hosted container platforms, and hybrid-cloud tunnels</span>
+          <div class="now-items">
+            <div class="now-item">
+              <span class="now-item-label">Building</span>
+              <span class="now-item-val">This website — ongoing redesign and new pages</span>
             </div>
-            <div class="status-item">
-              <span class="status-label">Environment</span>
-              <span class="status-val">Synology NAS, Docker Compose, Cloudflare Zero Trust, Nginx</span>
+            <div class="now-item">
+              <span class="now-item-label">Learning</span>
+              <span class="now-item-val">AI tooling in day-to-day engineering workflows</span>
             </div>
-            <div class="status-item">
-              <span class="status-label">Interests</span>
-              <span class="status-val">Software engineering, generative AI tooling, electronic engineering & aviation</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Skills & Tooling Matrix -->
-      <section>
-        <h2>Skills & Tooling</h2>
-        <div class="skills-matrix">
-          <div>
-            <div class="skill-category-title">Languages & Frameworks</div>
-            <div class="skill-group">
-              <span class="skill-tag">Java</span>
-              <span class="skill-tag">Python</span>
-              <span class="skill-tag">JavaScript / ES6+</span>
-              <span class="skill-tag">React</span>
-              <span class="skill-tag">HTML5 / Semantic Web</span>
-              <span class="skill-tag">CSS3</span>
-              <span class="skill-tag">C</span>
-            </div>
-          </div>
-          <div>
-            <div class="skill-category-title">Infrastructure, Cloud & DevOps</div>
-            <div class="skill-group">
-              <span class="skill-tag">Docker & Compose</span>
-              <span class="skill-tag">Nginx Reverse Proxy</span>
-              <span class="skill-tag">Cloudflare Tunnels</span>
-              <span class="skill-tag">Synology DSM</span>
-              <span class="skill-tag">Tailscale Mesh</span>
-              <span class="skill-tag">Jenkins CI/CD</span>
-              <span class="skill-tag">Git & GitHub</span>
-            </div>
-          </div>
-          <div>
-            <div class="skill-category-title">Testing & Software Quality</div>
-            <div class="skill-group">
-              <span class="skill-tag">Automated Testing</span>
-              <span class="skill-tag">Unit & Integration Testing</span>
-              <span class="skill-tag">System Verification</span>
-              <span class="skill-tag">Defect Analysis</span>
+            <div class="now-item">
+              <span class="now-item-label">At work</span>
+              <span class="now-item-val">CICS test automation and feature delivery at IBM</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Career & Engineering Timeline -->
-      <section>
-        <h2>Experience & Milestones</h2>
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-date">Present</div>
-            <div class="timeline-title">Software Engineer / Developer / Tester · IBM</div>
-            <p class="timeline-desc">
-              Building, testing, and delivering robust software solutions within enterprise teams. Contributing to modern tooling, automation, and continuous integration workflows.
-            </p>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-date">Academic & Engineering Foundation</div>
-            <div class="timeline-title">Degree in Electronic Engineering</div>
-            <p class="timeline-desc">
-              Successfully graduated from a full-time electronic engineering degree while concurrently working full-time, building a foundation in hardware-software interfaces and structured problem-solving.
-            </p>
-          </div>
+      <!-- Latest writing -->
+      <section aria-labelledby="writing-heading">
+        <h2 id="writing-heading">Latest writing</h2>
+        <div class="post-list" id="postList">
+          <p class="post-list-loading">Loading posts…</p>
         </div>
+        <a href="/blog" class="section-more">All posts →</a>
       </section>
 
-      <!-- Featured Repositories & Open Source -->
-      <section>
-        <h2>Featured Repositories</h2>
-        <div class="repo-grid">
-          <a href="https://github.com/khinds-dev/keith-website" target="_blank" rel="noopener" class="repo-card">
-            <div>
-              <div class="repo-top">
-                <svg viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"/></svg>
-                <span>keith-website</span>
-              </div>
-              <p class="repo-desc">Personal portfolio and website served in Docker on Synology NAS with Cloudflare Tunnel.</p>
+      <!-- Featured projects -->
+      <section aria-labelledby="projects-heading">
+        <h2 id="projects-heading">Featured projects</h2>
+        <div class="project-list">
+          <div class="project-row">
+            <div class="project-row-body">
+              <h3>keithhinds.co.uk</h3>
+              <p>This site — static HTML/CSS/JS, Node.js blog API, Docker on a Synology NAS, tunnelled via Cloudflare. No cloud hosting fees.</p>
             </div>
-            <div class="repo-meta">
-              <span class="repo-lang"><span class="lang-dot html"></span> HTML / CSS / JS</span>
-              <span class="repo-lang"><span class="lang-dot docker"></span> Docker</span>
+            <a href="/work/this-website" class="project-row-link">Read more</a>
+          </div>
+          <div class="project-row">
+            <div class="project-row-body">
+              <h3>Open source on GitHub</h3>
+              <p>Repos covering web projects, homelab tooling, and automation scripts — built to scratch specific itches.</p>
             </div>
-          </a>
+            <a href="https://github.com/khinds-dev" target="_blank" rel="noopener" class="project-row-link">GitHub →</a>
+          </div>
         </div>
+        <a href="/work" class="section-more">All work →</a>
       </section>
 
-      <!-- GitHub Activity Heatmap -->
-      <section>
-        <h2>GitHub Activity</h2>
+      <!-- Beyond the code -->
+      <section aria-labelledby="interests-heading">
+        <h2 id="interests-heading">Beyond the code</h2>
+        <div class="interests-teaser">
+          <span class="interest-pill">Aviation</span>
+          <span class="interest-pill">Football</span>
+          <span class="interest-pill">Dogs</span>
+          <span class="interest-pill">Science fiction</span>
+          <span class="interest-pill">History</span>
+          <span class="interest-pill">Travel</span>
+          <span class="interest-pill">Film</span>
+        </div>
+        <a href="/interests" class="section-more">More about my interests →</a>
+      </section>
+
+      <!-- GitHub Activity -->
+      <section aria-labelledby="github-heading">
+        <h2 id="github-heading">GitHub activity</h2>
         <div class="github-activity">
           <div class="github-activity-header">
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="#57606a"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="#57606a" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
             <a href="https://github.com/khinds-dev" target="_blank" rel="noopener">khinds-dev</a>
           </div>
           <div class="github-graph-wrap">
-            <img id="github-graph-img" src="https://ghchart.rshah.org/khinds-dev" alt="khinds-dev's GitHub contribution chart" class="github-graph" />
+            <img id="github-graph-img" src="https://ghchart.rshah.org/khinds-dev" alt="khinds-dev GitHub contribution chart" class="github-graph" />
           </div>
           <p class="github-activity-note">Contribution activity over the past year</p>
         </div>
       </section>
 
-      <section>
-        <h2>Get in touch</h2>
+      <!-- Get in touch -->
+      <section aria-labelledby="contact-heading">
+        <h2 id="contact-heading">Get in touch</h2>
         <p style="font-size:0.9rem; color:#57606a; line-height:1.7; margin-bottom:1rem;">
           Have a question or want to work together? Drop me a message.
         </p>
@@ -671,6 +548,34 @@
   </footer>
 
   <script src="/js/nav.js"></script>
+  <script>
+    // Load latest 3 posts from API
+    fetch('/api/posts')
+      .then(function(r) { return r.json(); })
+      .then(function(posts) {
+        var container = document.getElementById('postList');
+        if (!posts || !posts.length) {
+          container.innerHTML = '<p class="post-list-loading">No posts yet — check back soon.</p>';
+          return;
+        }
+        var latest = posts.slice(0, 3);
+        container.innerHTML = latest.map(function(p) {
+          var date = new Date(p.created_at).toLocaleDateString('en-GB', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          });
+          var title = p.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+          var slug = encodeURIComponent(p.slug);
+          return '<a class="post-row" href="/blog/post?slug=' + slug + '">'
+            + '<span class="post-row-title">' + title + '</span>'
+            + '<span class="post-row-date">' + date + '</span>'
+            + '</a>';
+        }).join('');
+      })
+      .catch(function() {
+        document.getElementById('postList').innerHTML =
+          '<p class="post-list-loading">Could not load posts.</p>';
+      });
+  </script>
 
 </body>
 </html>
