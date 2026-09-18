@@ -23,6 +23,7 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Pace & Stopping Rule
 - **Complete one phase or named section at a time, then stop.** After finishing a section, summarise what was done and wait for the user to say "continue" or start a fresh task. Never automatically start the next phase or section.
+- **Double-check completed work before closing a phase.** At the end of every phase or named section, run a verification pass covering: (1) all new/modified files exist and have correct content; (2) every HTML page has `shared.css`, `nav.js`, correct nav links, and correct `class="active"` state; (3) the `Dockerfile` has a `COPY` line for every new page; (4) `sitemap.xml` includes every public page; (5) no broken internal links (no old nav hrefs like `/portfolio` or `/repos` remaining in nav blocks); (6) any cross-file consistency requirements (e.g. footer copyright, meta tags, canonical URLs). Fix any issues found before committing the phase.
 
 ## Git Workflow Rules
 - **Always `git pull` before making any changes.** Run `git pull origin main` at the start of every session and before starting any new task. This prevents merge conflicts caused by external commits.
