@@ -94,22 +94,22 @@ This section tracks the full redesign brief agreed in the planning session. Upda
 
 ### Phase 2 — New pages (additive only, no existing pages broken)
 
-- [ ] New nav: change links from [Home, Portfolio, Repos, Blog, Contact] → [Home, About, Work, Writing, Contact] across **all** page files; keep `/portfolio` and `/repos` URLs intact but update nav labels and active states; "Repos" becomes "GitHub" in the display label on the repos page header
-- [ ] Create `/about` (`about/index.html`) — personal background, career (electronic engineering → IBM software), how I work, interests outside tech; add `COPY` to `Dockerfile` and `nginx.conf` try_files support
-- [ ] Create `/work` (`work/index.html`) — professional experience timeline, IBM roles, technical areas, featured projects list; add `COPY` to `Dockerfile`
-- [ ] Create `/work/this-website` (`work/this-website/index.html`) — architecture write-up, full stack, infrastructure SVG diagram, deployment model; add `COPY` to `Dockerfile`
-- [ ] Create `/now` (`now/index.html`) — what Keith is currently building, learning, exploring, and doing outside work; "Last updated: [date]" at bottom; add `COPY` to `Dockerfile`
-- [ ] Create `/interests` (`interests/index.html`) — overview cards for aviation, football, travel, dogs, technology, history, film/sci-fi; personal tone; add `COPY` to `Dockerfile`
+- [x] New nav: change links from [Home, Portfolio, Repos, Blog, Contact] → [Home, About, Work, Writing, Contact] across **all** page files; keep `/portfolio` and `/repos` URLs intact but update nav labels and active states; "Repos" becomes "GitHub" in the display label on the repos page header
+- [x] Create `/about` (`about/index.html`) — personal background, career (electronic engineering → IBM software), how I work, interests outside tech; add `COPY` to `Dockerfile` and `nginx.conf` try_files support
+- [x] Create `/work` (`work/index.html`) — professional experience timeline, IBM roles, technical areas, featured projects list; add `COPY` to `Dockerfile`
+- [x] Create `/work/this-website` (`work/this-website/index.html`) — architecture write-up, full stack, infrastructure SVG diagram, deployment model; add `COPY` to `Dockerfile`
+- [x] Create `/now` (`now/index.html`) — what Keith is currently building, learning, exploring, and doing outside work; "Last updated: [date]" at bottom; add `COPY` to `Dockerfile`
+- [x] Create `/interests` (`interests/index.html`) — overview cards for aviation, football, travel, dogs, technology, history, film/sci-fi; personal tone; add `COPY` to `Dockerfile`
 
 ---
 
 ### Phase 3 — Existing page improvements
 
-- [ ] **Homepage** (`index.html`): tighten hero (shorter bio), add condensed Now section linking to `/now`, show latest 3 posts dynamically from API, show 2–3 featured projects, add beyond-code interests teaser; remove the skills matrix and full timeline (those live on `/about` and `/work`)
-- [ ] **Blog listing** (`blog/index.html`): add excerpt display on tiles (derive from first ~160 chars of body client-side); add reading time estimate; update nav to show "Writing" as active label
-- [ ] **Blog post** (`blog/post/index.html`): fix Markdown renderer — list wrapping bug (multiple `<li>` items each getting their own `<ul>`), ordered list support, heading IDs, correct fenced code language stripping; add dynamic Open Graph meta tags after post loads; update `<title>` format
-- [ ] **Repos page** (`repos/index.html`): improve empty/error/loading states; add a brief personal intro line; clean up mobile layout; update page header to say "GitHub" not "GitHub Repos"
-- [ ] **Contact page** (`contact/index.html`): update intro copy to match brief tone; add per-field inline validation error messages; prevent double-submit on fast re-click
+- [x] **Homepage** (`index.html`): tighten hero (shorter bio), add condensed Now section linking to `/now`, show latest 3 posts dynamically from API, show 2–3 featured projects, add beyond-code interests teaser; remove the skills matrix and full timeline (those live on `/about` and `/work`)
+- [x] **Blog listing** (`blog/index.html`): add excerpt display on tiles (derive from first ~160 chars of body client-side); add reading time estimate; update nav to show "Writing" as active label
+- [x] **Blog post** (`blog/post/index.html`): fix Markdown renderer — list wrapping bug (multiple `<li>` items each getting their own `<ul>`), ordered list support, heading IDs, correct fenced code language stripping; add dynamic Open Graph meta tags after post loads; update `<title>` format
+- [x] **Repos page** (`repos/index.html`): improve empty/error/loading states; add a brief personal intro line; clean up mobile layout; update page header to say "GitHub" not "GitHub Repos"
+- [x] **Contact page** (`contact/index.html`): update intro copy to match brief tone; add per-field inline validation error messages; prevent double-submit on fast re-click
 
 ---
 

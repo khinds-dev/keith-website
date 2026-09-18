@@ -188,8 +188,31 @@
       text-align: center;
     }
 
+    .state-msg.is-error {
+      color: #cf222e;
+    }
+
+    .state-msg-icon {
+      display: block;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .state-msg-sub {
+      display: block;
+      font-size: 0.82rem;
+      color: #8b949e;
+      margin-top: 0.35rem;
+    }
+
     @media (max-width: 560px) {
+      .page-header { padding: 2rem 1.25rem 0; }
+      main { padding: 2rem 1.25rem 3rem; }
+      .filter-bar { gap: 0.5rem; }
+      .filter-bar input,
+      .filter-bar select { font-size: 0.8rem; }
       .repo-card { flex-direction: column; gap: 0.5rem; }
+      .repo-name { white-space: normal; }
     }
   </style>
 </head>
@@ -212,7 +235,8 @@
   <div class="page-header">
     <div class="page-header-inner">
       <h1>GitHub</h1>
-      <p>All public repositories from <a href="https://github.com/khinds-dev" target="_blank" rel="noopener" style="color:#3b82d4;text-decoration:none;">khinds-dev</a> on GitHub.</p>
+      <p>I put most of my personal side projects and experiments on GitHub. Mostly web tools, homelab automation, and scripts that scratched a specific itch — nothing polished, but all real.</p>
+      <p style="margin-top:0.5rem;">Browse the full list from <a href="https://github.com/khinds-dev" target="_blank" rel="noopener" style="color:#3b82d4;text-decoration:none;">khinds-dev</a> below, or head straight to <a href="https://github.com/khinds-dev" target="_blank" rel="noopener" style="color:#3b82d4;text-decoration:none;">GitHub</a>.</p>
     </div>
   </div>
 
@@ -230,7 +254,10 @@
       </div>
 
       <div id="repo-list">
-        <p class="state-msg" id="stateMsg">Loading repositories…</p>
+        <p class="state-msg" id="stateMsg">
+          <span class="state-msg-icon" aria-hidden="true">⏳</span>
+          Loading repositories…
+        </p>
       </div>
 
     </div>
@@ -349,7 +376,9 @@
       count.textContent = `${repos.length} repo${repos.length !== 1 ? 's' : ''}`;
 
       if (repos.length === 0) {
-        list.innerHTML = `<p class="state-msg">No repositories match "${query}".</p>`;
+        list.innerHTML = query
+          ? `<p class="state-msg">No repositories match &ldquo;${escHtml(query)}&rdquo;. <span class="state-msg-sub">Try a different search term.</span></p>`
+          : `<p class="state-msg">No repositories found.</p>`;
         return;
       }
       list.innerHTML = repos.map(renderCard).join('');
@@ -358,16 +387,27 @@
     (async () => {
       try {
         allRepos = await fetchAllRepos();
-        document.getElementById('stateMsg').remove();
+        const stateMsg = document.getElementById('stateMsg');
+        if (stateMsg) stateMsg.remove();
         render();
       } catch (err) {
-        document.getElementById('stateMsg').textContent =
-          'Could not load repositories. Please try again later.';
+        const stateMsg = document.getElementById('stateMsg');
+        if (stateMsg) {
+          stateMsg.classList.add('is-error');
+          stateMsg.innerHTML =
+            '<span class="state-msg-icon" aria-hidden="true">⚠️</span>' +
+            'Could not load repositories.' +
+            '<span class="state-msg-sub">GitHub API may be rate-limited or unavailable. Try again in a moment.</span>';
+        }
       }
     })();
 
     document.getElementById('searchInput').addEventListener('input', render);
     document.getElementById('sortSelect').addEventListener('change', render);
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
   </script>
 
 </body>

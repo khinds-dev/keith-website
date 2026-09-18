@@ -43,6 +43,25 @@
       border-bottom: 1px solid #e5e7eb;
     }
 
+    /* ── Field-level validation ── */
+    .field-error {
+      display: none;
+      font-size: 0.8rem;
+      color: #cf222e;
+      margin-top: 0.3rem;
+    }
+
+    input.invalid,
+    textarea.invalid {
+      border-color: #cf222e;
+    }
+
+    input.invalid:focus,
+    textarea.invalid:focus {
+      border-color: #cf222e;
+      box-shadow: 0 0 0 3px rgba(207,34,46,0.15);
+    }
+
     /* ── Form ── */
     .form-group {
       margin-bottom: 1.25rem;
@@ -158,18 +177,20 @@
     <div class="contact-wrap">
       <h1>Get in Touch</h1>
       <p class="subtitle">
-        Have a question, idea, or just want to say hello? Fill in the form below and I'll get back to you.
+        Got a question, a project in mind, or just want to say hello? I'm always happy to hear from people. Fill in the form below and I'll get back to you.
       </p>
 
       <form id="contactForm" novalidate>
         <div class="form-group">
           <label for="name">Name <span class="required">*</span></label>
           <input type="text" id="name" name="name" placeholder="Your name" required autocomplete="name" />
+          <span class="field-error" id="nameError">Please enter your name.</span>
         </div>
 
         <div class="form-group">
           <label for="email">Email address <span class="required">*</span></label>
           <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" />
+          <span class="field-error" id="emailError">Please enter a valid email address.</span>
         </div>
 
         <div class="form-group">
@@ -180,6 +201,7 @@
         <div class="form-group">
           <label for="message">Message <span class="required">*</span></label>
           <textarea id="message" name="message" placeholder="Write your message here…" required></textarea>
+          <span class="field-error" id="messageError">Please write a message.</span>
         </div>
 
         <div class="submit-row">
@@ -207,25 +229,64 @@
     /* ── Contact form — sends via Formspree ── */
     const FORMSPREE_ID = 'mppanpby';
 
-    const form = document.getElementById('contactForm');
-    const submitBtn = document.getElementById('submitBtn');
+    const form       = document.getElementById('contactForm');
+    const submitBtn  = document.getElementById('submitBtn');
     const successMsg = document.getElementById('successMsg');
-    const errorMsg = document.getElementById('errorMsg');
+    const errorMsg   = document.getElementById('errorMsg');
+
+    // Per-field validation helpers
+    function showFieldError(inputId, errorId) {
+      const input = document.getElementById(inputId);
+      const err   = document.getElementById(errorId);
+      input.classList.add('invalid');
+      err.style.display = 'block';
+    }
+
+    function clearFieldError(inputId, errorId) {
+      const input = document.getElementById(inputId);
+      const err   = document.getElementById(errorId);
+      input.classList.remove('invalid');
+      err.style.display = 'none';
+    }
+
+    // Clear field errors on input
+    ['name', 'email', 'message'].forEach(function(id) {
+      const errorId = id + 'Error';
+      document.getElementById(id).addEventListener('input', function() {
+        clearFieldError(id, errorId);
+      });
+    });
+
+    // Prevent double-submit guard
+    let submitting = false;
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
+      if (submitting) return;
+
       successMsg.style.display = 'none';
-      errorMsg.style.display = 'none';
+      errorMsg.style.display   = 'none';
 
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const message = document.getElementById('message').value.trim();
-      if (!name || !email || !message) {
-        errorMsg.textContent = 'Please fill in all required fields (Name, Email, Message).';
-        errorMsg.style.display = 'block';
-        return;
+      const nameVal    = document.getElementById('name').value.trim();
+      const emailVal   = document.getElementById('email').value.trim();
+      const messageVal = document.getElementById('message').value.trim();
+
+      let valid = true;
+      if (!nameVal) {
+        showFieldError('name', 'nameError');
+        valid = false;
       }
+      if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+        showFieldError('email', 'emailError');
+        valid = false;
+      }
+      if (!messageVal) {
+        showFieldError('message', 'messageError');
+        valid = false;
+      }
+      if (!valid) return;
 
+      submitting = true;
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
 
@@ -239,15 +300,16 @@
         if (res.ok) {
           form.reset();
           successMsg.style.display = 'block';
+          successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
           throw new Error('Non-OK response');
         }
       } catch (_) {
-        errorMsg.textContent = '';
         errorMsg.innerHTML = 'Something went wrong. Please try again or email me directly at '
           + '<a href="mailto:kman83@hotmail.co.uk" style="color:#cf222e;">kman83@hotmail.co.uk</a>.';
         errorMsg.style.display = 'block';
       } finally {
+        submitting = false;
         submitBtn.disabled = false;
         submitBtn.textContent = 'Send Message';
       }

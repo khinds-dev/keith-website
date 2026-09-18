@@ -179,44 +179,97 @@
   <script>
     document.getElementById('yr').textContent = new Date().getFullYear();
 
-    // Simple Markdown-ish renderer (paragraphs, headings, code, bold, italic, lists)
+    // Markdown renderer — paragraphs, headings (with IDs), code, bold, italic, lists, images, links
     function renderMarkdown(md) {
-      var html = md
-        // Escape HTML first
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        // Fenced code blocks
-        .replace(/```[\s\S]*?```/g, function (m) {
-          var inner = m.slice(3, -3).replace(/^\w*\n/, '');
-          return '<pre><code>' + inner + '</code></pre>';
-        })
-        // Headings
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      // Step 1: extract fenced code blocks before HTML-escaping to preserve content
+      var codeBlocks = [];
+      var src = md.replace(/```([^\n]*)\n([\s\S]*?)```/g, function (_, lang, code) {
+        var escaped = code
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        codeBlocks.push('<pre><code>' + escaped + '</code></pre>');
+        return '\x00CODE' + (codeBlocks.length - 1) + '\x00';
+      });
+
+      // Step 2: HTML-escape everything else
+      src = src
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // Step 3: inline spans (order matters)
+      src = src
+        // Headings — add slug IDs for anchor links
+        .replace(/^###### (.+)$/gm, function(_, t) { return '<h6 id="' + slugId(t) + '">' + t + '</h6>'; })
+        .replace(/^##### (.+)$/gm,  function(_, t) { return '<h5 id="' + slugId(t) + '">' + t + '</h5>'; })
+        .replace(/^#### (.+)$/gm,   function(_, t) { return '<h4 id="' + slugId(t) + '">' + t + '</h4>'; })
+        .replace(/^### (.+)$/gm,    function(_, t) { return '<h3 id="' + slugId(t) + '">' + t + '</h3>'; })
+        .replace(/^## (.+)$/gm,     function(_, t) { return '<h2 id="' + slugId(t) + '">' + t + '</h2>'; })
+        .replace(/^# (.+)$/gm,      function(_, t) { return '<h1 id="' + slugId(t) + '">' + t + '</h1>'; })
         // Bold & italic
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
         // Inline code
         .replace(/`([^`]+)`/g, '<code>$1</code>')
-        // Blockquote
+        // Blockquote (after HTML escape, > becomes &gt;)
         .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
-        // Unordered list items
-        .replace(/^\s*[-*] (.+)$/gm, '<li>$1</li>')
-        // Wrap consecutive <li> in <ul>
-        .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>')
-        // Images (must come before links)
+        // Images (before links — both use [] syntax)
         .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="post-inline-img" />')
         // Links
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-        // Paragraphs (lines not already block elements)
-        .split(/\n{2,}/)
-        .map(function (block) {
-          block = block.trim();
-          if (!block) return '';
-          if (/^<(h[1-6]|ul|ol|li|pre|blockquote|img)/.test(block)) return block;
-          return '<p>' + block.replace(/\n/g, ' ') + '</p>';
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+      // Step 4: lists — collect consecutive list lines then wrap in <ul> / <ol>
+      src = src
+        .replace(/((?:^[ \t]*[-*][ \t].+\n?)+)/gm, function(block) {
+          var items = block.trim().split('\n').map(function(line) {
+            return '<li>' + line.replace(/^[ \t]*[-*][ \t]/, '').trim() + '</li>';
+          }).join('');
+          return '<ul>' + items + '</ul>';
         })
-        .join('\n');
-      return html;
+        .replace(/((?:^[ \t]*\d+\.[ \t].+\n?)+)/gm, function(block) {
+          var items = block.trim().split('\n').map(function(line) {
+            return '<li>' + line.replace(/^[ \t]*\d+\.[ \t]/, '').trim() + '</li>';
+          }).join('');
+          return '<ol>' + items + '</ol>';
+        });
+
+      // Step 5: paragraphs — split on blank lines; skip lines that are already block elements
+      var blocks = src.split(/\n{2,}/);
+      src = blocks.map(function(block) {
+        block = block.trim();
+        if (!block) return '';
+        if (/^\x00CODE\d+\x00$/.test(block)) return block;
+        if (/^<(h[1-6]|ul|ol|pre|blockquote|img|p)[\s>]/.test(block)) return block;
+        return '<p>' + block.replace(/\n/g, ' ') + '</p>';
+      }).join('\n');
+
+      // Step 6: restore code blocks
+      src = src.replace(/\x00CODE(\d+)\x00/g, function(_, i) { return codeBlocks[+i]; });
+
+      return src;
+    }
+
+    function slugId(text) {
+      return text.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+    }
+
+    function deriveExcerpt(body, maxLen) {
+      var text = body
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/`[^`]+`/g, '')
+        .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/^#{1,6}\s+/gm, '')
+        .replace(/^\s*[-*]\s+/gm, '')
+        .replace(/^\s*\d+\.\s+/gm, '')
+        .replace(/^>\s+/gm, '')
+        .replace(/\*\*(.+?)\*\*/g, '$1')
+        .replace(/\*(.+?)\*/g, '$1')
+        .replace(/\n+/g, ' ')
+        .trim();
+      if (!text) return '';
+      if (text.length <= maxLen) return text;
+      return text.slice(0, maxLen).replace(/\s+\S*$/, '') + '…';
     }
 
     // Read slug from query string
@@ -233,7 +286,16 @@
           return r.json();
         })
         .then(function (post) {
-          document.title = post.title + ' — Keith Hinds';
+          document.title = post.title + ' — Writing — Keith Hinds';
+          // Update OG meta tags dynamically
+          var setMeta = function(prop, val) {
+            var el = document.querySelector('meta[property="' + prop + '"]');
+            if (el) el.setAttribute('content', val);
+          };
+          setMeta('og:title', post.title + ' — Keith Hinds');
+          setMeta('og:description', deriveExcerpt(post.body || '', 200) || document.querySelector('meta[name="description"]').getAttribute('content'));
+          setMeta('og:url', 'https://www.keithhinds.co.uk/blog/post?slug=' + encodeURIComponent(post.slug));
+          if (post.cover_image) setMeta('og:image', 'https://www.keithhinds.co.uk' + post.cover_image);
           var date = new Date(post.created_at).toLocaleDateString('en-GB', {
             day: 'numeric', month: 'long', year: 'numeric'
           });

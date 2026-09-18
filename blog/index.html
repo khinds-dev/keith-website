@@ -103,11 +103,30 @@
       line-height: 1.35;
     }
 
+    .post-tile-excerpt {
+      font-size: 0.82rem;
+      color: #57606a;
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .post-tile-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: auto;
+      padding-top: 0.5rem;
+    }
+
     .post-tile-date {
       font-size: 0.78rem;
       color: #57606a;
-      margin-top: auto;
-      padding-top: 0.5rem;
+    }
+
+    .post-tile-read-time {
+      font-size: 0.78rem;
+      color: #57606a;
     }
 
     /* ── States ── */
@@ -195,11 +214,17 @@
                 return '<div class="post-tile-image-wrap"><img class="post-tile-image" src="' + escAttr(p.cover_image) + '" alt="" loading="lazy" data-fx="' + fx + '" data-fy="' + fy + '" data-fz="' + fz + '" /></div>';
               })()
             : IMAGE_PLACEHOLDER;
+          var excerpt = deriveExcerpt(p.body || '', 160);
+          var readTime = calcReadTime(p.body || '');
           return '<a class="post-tile" href="/blog/post?slug=' + encodeURIComponent(p.slug) + '">' +
             imgHtml +
             '<div class="post-tile-body">' +
               '<div class="post-tile-title">' + escHtml(p.title) + '</div>' +
-              '<div class="post-tile-date">' + date + '</div>' +
+              (excerpt ? '<div class="post-tile-excerpt">' + escHtml(excerpt) + '</div>' : '') +
+              '<div class="post-tile-footer">' +
+                '<span class="post-tile-date">' + date + '</span>' +
+                '<span class="post-tile-read-time">' + readTime + '</span>' +
+              '</div>' +
             '</div>' +
             '</a>';
         }).join('');
@@ -239,6 +264,32 @@
       img.style.height = imgH + 'px';
       img.style.left   = imgLeft + 'px';
       img.style.top    = imgTop  + 'px';
+    }
+
+    function deriveExcerpt(body, maxLen) {
+      // Strip markdown syntax to get plain text, then truncate
+      var text = body
+        .replace(/```[\s\S]*?```/g, '')   // fenced code blocks
+        .replace(/`[^`]+`/g, '')           // inline code
+        .replace(/!\[[^\]]*\]\([^)]+\)/g, '') // images
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links → keep link text
+        .replace(/^#{1,6}\s+/gm, '')       // headings
+        .replace(/^\s*[-*]\s+/gm, '')      // list bullets
+        .replace(/^\s*\d+\.\s+/gm, '')     // ordered list numbers
+        .replace(/^>\s+/gm, '')            // blockquotes
+        .replace(/\*\*(.+?)\*\*/g, '$1')  // bold
+        .replace(/\*(.+?)\*/g, '$1')       // italic
+        .replace(/\n+/g, ' ')              // newlines → spaces
+        .trim();
+      if (!text) return '';
+      if (text.length <= maxLen) return text;
+      return text.slice(0, maxLen).replace(/\s+\S*$/, '') + '…';
+    }
+
+    function calcReadTime(body) {
+      var words = body.trim().split(/\s+/).filter(Boolean).length;
+      var mins = Math.max(1, Math.round(words / 200));
+      return mins + ' min read';
     }
 
     function escHtml(s) {

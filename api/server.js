@@ -118,7 +118,7 @@ app.post('/api/login', (req, res) => {
 // GET /api/posts  — public, returns published posts only
 app.get('/api/posts', (req, res) => {
   const posts = db
-    .prepare('SELECT id, title, slug, cover_image, cover_focal_x, cover_focal_y, cover_zoom, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
+    .prepare('SELECT id, title, slug, body, cover_image, cover_focal_x, cover_focal_y, cover_zoom, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
     .all();
   res.json(posts);
 });
