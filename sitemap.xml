@@ -6,14 +6,29 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.keithhinds.co.uk/portfolio</loc>
+    <loc>https://www.keithhinds.co.uk/about</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.keithhinds.co.uk/repos</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://www.keithhinds.co.uk/work</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.keithhinds.co.uk/work/this-website</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.keithhinds.co.uk/now</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.keithhinds.co.uk/interests</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.keithhinds.co.uk/blog</loc>
@@ -24,5 +39,15 @@
     <loc>https://www.keithhinds.co.uk/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.keithhinds.co.uk/portfolio</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.keithhinds.co.uk/repos</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>
