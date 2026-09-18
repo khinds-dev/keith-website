@@ -13,14 +13,8 @@
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
-    /* ── Main ── */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 3rem 2rem;
-    }
+    /* contact overrides shared main layout */
+    main { align-items: flex-start; }
 
     .contact-wrap {
       max-width: 540px;
@@ -159,7 +153,7 @@
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
@@ -169,7 +163,7 @@
       <a href="/contact" class="active">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 
@@ -226,7 +220,7 @@
 
   <script src="/js/nav.js"></script>
   <script>
-    /* ── Contact form — sends via Formspree ── */
+    /* ── Contact form — tries /api/contact first, falls back to Formspree ── */
     const FORMSPREE_ID = 'mppanpby';
 
     const form       = document.getElementById('contactForm');
@@ -291,18 +285,33 @@
       submitBtn.textContent = 'Sending…';
 
       try {
-        const res = await fetch('https://formspree.io/f/' + FORMSPREE_ID, {
-          method: 'POST',
-          headers: { 'Accept': 'application/json' },
-          body: new FormData(form)
-        });
+        // Try the local API first
+        let succeeded = false;
+        try {
+          const apiRes = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ name: nameVal, email: emailVal, message: messageVal })
+          });
+          if (apiRes.ok) succeeded = true;
+        } catch (_) { /* API unreachable — fall through to Formspree */ }
 
-        if (res.ok) {
+        if (!succeeded) {
+          // Fallback: Formspree
+          const fsRes = await fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: new FormData(form)
+          });
+          if (fsRes.ok) succeeded = true;
+        }
+
+        if (succeeded) {
           form.reset();
           successMsg.style.display = 'block';
           successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
-          throw new Error('Non-OK response');
+          throw new Error('Both endpoints failed');
         }
       } catch (_) {
         errorMsg.innerHTML = 'Something went wrong. Please try again or email me directly at '

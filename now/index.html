@@ -13,32 +13,12 @@
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 3rem 2rem;
-    }
-
     .now-wrap {
       max-width: 680px;
       width: 100%;
     }
 
-    /* ── Page header ── */
-    .page-header-block {
-      margin-bottom: 2.5rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .page-header-block h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.3rem;
-    }
-
+    /* ── Page header extras (shared base is in shared.css) ── */
     .page-header-block .subtitle {
       color: #57606a;
       font-size: 0.9rem;
@@ -112,7 +92,7 @@
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
@@ -122,7 +102,7 @@
       <a href="/contact">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 

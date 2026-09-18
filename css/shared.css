@@ -119,3 +119,135 @@ footer {
   font-size: 0.8rem;
   color: var(--color-muted);
 }
+
+/* ── Keyboard focus — global visible ring ── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── Main content area — standard centred layout ── */
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 3rem 2rem;
+}
+
+/* ── Page header block — used on interior pages ── */
+/* Shared by: about, now, interests, work, work/this-website */
+.page-header-block {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.page-header-block h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.page-header-block p {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Page header with outer padding — portfolio / repos style ── */
+.page-header {
+  padding: 3rem 2rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.page-header-inner {
+  max-width: 760px;
+  width: 100%;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 2rem;
+}
+
+.page-header-inner h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.page-header-inner p {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+}
+
+/* ── State messages — loading / empty / error ── */
+/* Shared by: blog listing, repos */
+.state-msg {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.state-msg.is-error { color: #cf222e; }
+
+.state-msg-icon {
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.state-msg-sub {
+  display: block;
+  font-size: 0.82rem;
+  color: #8b949e;
+  margin-top: 0.35rem;
+}
+
+/* ── Back link — used on blog post, work sub-pages ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  margin-bottom: 2rem;
+  transition: color 0.12s;
+}
+
+.back-link:hover { color: var(--color-text); }
+
+/* ── Section more link ── */
+.section-more {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.section-more:hover { text-decoration: underline; }
+
+/* ── Tag / pill chips — used on multiple pages ── */
+.tag-chip {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-muted);
+}
+
+/* ── Empty / loading state paragraphs (blog, repos) ── */
+.empty-state,
+.loading {
+  padding: 3rem 0;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}

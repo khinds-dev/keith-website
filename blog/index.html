@@ -13,14 +13,6 @@
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
-    /* ── Main ── */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 3rem 2rem;
-    }
-
     .content {
       max-width: 960px;
       width: 100%;
@@ -129,21 +121,6 @@
       color: #57606a;
     }
 
-    /* ── States ── */
-    .empty-state {
-      padding: 3rem 0;
-      text-align: center;
-      color: #57606a;
-      font-size: 0.9rem;
-    }
-
-    .loading {
-      padding: 3rem 0;
-      text-align: center;
-      color: #57606a;
-      font-size: 0.9rem;
-    }
-
     @media (max-width: 560px) {
       main { padding: 2rem 1.25rem; }
       .navbar { padding: 0.75rem 1.25rem; }
@@ -152,7 +129,7 @@
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
@@ -162,7 +139,7 @@
       <a href="/contact">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 

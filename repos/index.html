@@ -13,40 +13,8 @@
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
-    /* ── Page header ── */
-    .page-header {
-      padding: 3rem 2rem 0;
-      display: flex;
-      justify-content: center;
-    }
-
-    .page-header-inner {
-      max-width: 760px;
-      width: 100%;
-      border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 2rem;
-    }
-
-    .page-header-inner h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.4rem;
-    }
-
-    .page-header-inner p {
-      font-size: 0.9rem;
-      color: #57606a;
-      line-height: 1.7;
-    }
-
-    /* ── Main ── */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 2.5rem 2rem 3rem;
-    }
+    /* repos uses different top padding than the global 3rem */
+    main { padding: 2.5rem 2rem 3rem; }
 
     .content {
       max-width: 760px;
@@ -180,45 +148,34 @@
       color: #57606a;
     }
 
-    /* ── State messages ── */
-    .state-msg {
-      font-size: 0.9rem;
-      color: #57606a;
-      padding: 2rem 0;
-      text-align: center;
-    }
-
-    .state-msg.is-error {
-      color: #cf222e;
-    }
-
-    .state-msg-icon {
-      display: block;
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .state-msg-sub {
-      display: block;
-      font-size: 0.82rem;
-      color: #8b949e;
-      margin-top: 0.35rem;
+    @media (max-width: 768px) {
+      main { padding: 2rem 1.5rem 3rem; }
+      .page-header { padding: 2rem 1.5rem 0; }
     }
 
     @media (max-width: 560px) {
-      .page-header { padding: 2rem 1.25rem 0; }
-      main { padding: 2rem 1.25rem 3rem; }
+      .page-header { padding: 1.75rem 1.25rem 0; }
+      main { padding: 1.75rem 1.25rem 3rem; }
+      .navbar { padding: 0 1.25rem; }
       .filter-bar { gap: 0.5rem; }
       .filter-bar input,
       .filter-bar select { font-size: 0.8rem; }
       .repo-card { flex-direction: column; gap: 0.5rem; }
       .repo-name { white-space: normal; }
     }
+
+    @media (max-width: 480px) {
+      /* Stack filter controls vertically on very narrow screens */
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .filter-bar input { min-width: 0; }
+      .filter-bar select { width: 100%; }
+      .repo-count { text-align: right; }
+    }
   </style>
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
@@ -228,7 +185,7 @@
       <a href="/contact">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 
@@ -296,10 +253,10 @@
 
     function renderCard(repo) {
       const desc = repo.description
-        ? `<p class="repo-desc">${repo.description}</p>`
+        ? `<p class="repo-desc">${escHtml(repo.description)}</p>`
         : '';
       const lang = repo.language
-        ? `<span class="repo-lang">${langDot(repo.language)}${repo.language}</span>`
+        ? `<span class="repo-lang">${langDot(repo.language)}${escHtml(repo.language)}</span>`
         : '';
       const stars = repo.stargazers_count > 0
         ? `<span class="repo-stars">
@@ -321,7 +278,7 @@
       return `
         <div class="repo-card">
           <div class="repo-info">
-            <a class="repo-name" href="${repo.html_url}" target="_blank" rel="noopener">${repo.name}</a>
+            <a class="repo-name" href="${escHtml(repo.html_url)}" target="_blank" rel="noopener">${escHtml(repo.name)}</a>
             ${desc}
             <div class="repo-meta">
               ${lang}${stars}${forks}${fork}

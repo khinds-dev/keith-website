@@ -13,40 +13,8 @@
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
-    /* ── Page header ── */
-    .page-header {
-      padding: 3rem 2rem 0;
-      display: flex;
-      justify-content: center;
-    }
-
-    .page-header-inner {
-      max-width: 760px;
-      width: 100%;
-      border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 2rem;
-    }
-
-    .page-header-inner h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.4rem;
-    }
-
-    .page-header-inner p {
-      font-size: 0.9rem;
-      color: #57606a;
-      line-height: 1.7;
-    }
-
-    /* ── Main ── */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 2.5rem 2rem 3rem;
-    }
+    /* portfolio uses different top padding than the global 3rem */
+    main { padding: 2.5rem 2rem 3rem; }
 
     .content {
       max-width: 760px;
@@ -125,7 +93,7 @@
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
@@ -135,7 +103,7 @@
       <a href="/contact">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 

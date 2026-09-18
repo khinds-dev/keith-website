@@ -3,6 +3,7 @@
 const express = require('express');
 const Database = require('better-sqlite3');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
@@ -16,6 +17,23 @@ const ADMIN_PASS  = process.env.ADMIN_PASS  || 'changeme';
 const JWT_SECRET  = process.env.JWT_SECRET  || 'changeme-secret';
 const DB_PATH     = process.env.DB_PATH     || '/data/posts.db';
 const IMAGES_DIR  = process.env.IMAGES_DIR  || '/data/images';
+
+// SMTP config — optional; set all four to enable email forwarding
+const SMTP_HOST   = process.env.SMTP_HOST   || '';
+const SMTP_PORT   = Number(process.env.SMTP_PORT) || 587;
+const SMTP_USER   = process.env.SMTP_USER   || '';
+const SMTP_PASS   = process.env.SMTP_PASS   || '';
+const CONTACT_TO  = process.env.CONTACT_TO  || '';   // recipient address
+
+const smtpEnabled = SMTP_HOST && SMTP_USER && SMTP_PASS && CONTACT_TO;
+const mailer = smtpEnabled
+  ? nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
+    })
+  : null;
 
 // ── Database setup ────────────────────────────────────────────────────────────
 const dbDir = path.dirname(DB_PATH);
@@ -45,6 +63,16 @@ try { db.exec('ALTER TABLE posts ADD COLUMN cover_image TEXT'); }     catch (_) 
 try { db.exec('ALTER TABLE posts ADD COLUMN cover_focal_x REAL NOT NULL DEFAULT 50'); } catch (_) {}
 try { db.exec('ALTER TABLE posts ADD COLUMN cover_focal_y REAL NOT NULL DEFAULT 50'); } catch (_) {}
 try { db.exec('ALTER TABLE posts ADD COLUMN cover_zoom REAL NOT NULL DEFAULT 1'); }    catch (_) {}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS contacts (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    email      TEXT NOT NULL,
+    message    TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )
+`);
 
 // ── Multer (image uploads) ────────────────────────────────────────────────────
 const imageFileFilter = (req, file, cb) => {
@@ -94,6 +122,39 @@ function requireAuth(req, res, next) {
   }
 }
 
+// ── Content helpers ───────────────────────────────────────────────────────────
+
+/**
+ * Derive a plain-text excerpt from Markdown body.
+ * Strips Markdown syntax, collapses whitespace, trims to ~160 chars.
+ */
+function makeExcerpt(body, maxLen = 160) {
+  if (!body) return '';
+  const plain = body
+    .replace(/!\[.*?\]\(.*?\)/g, '')           // images
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')   // links → label
+    .replace(/```[\s\S]*?```/g, '')             // fenced code
+    .replace(/`[^`]*`/g, '')                    // inline code
+    .replace(/#{1,6}\s*/g, '')                  // headings
+    .replace(/[*_~>|#\-=+]/g, '')               // misc markers
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (plain.length <= maxLen) return plain;
+  const cut = plain.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut) + '…';
+}
+
+/**
+ * Estimate reading time in minutes (200 wpm average).
+ * Returns at least 1.
+ */
+function makeReadTime(body) {
+  if (!body) return 1;
+  const words = body.trim().split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 // ── Slug helper ───────────────────────────────────────────────────────────────
 function toSlug(title) {
   return title
@@ -115,11 +176,62 @@ app.post('/api/login', (req, res) => {
   res.json({ token });
 });
 
+// POST /api/contact  — public, store contact message + optional SMTP forward
+app.post('/api/contact', async (req, res) => {
+  const { name, email, message } = req.body || {};
+
+  // ── Validation ──────────────────────────────────────────────────────────────
+  const errors = {};
+  if (!name    || String(name).trim().length < 1)   errors.name    = 'Name is required';
+  if (!email   || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim()))
+                                                      errors.email   = 'A valid email address is required';
+  if (!message || String(message).trim().length < 10) errors.message = 'Message must be at least 10 characters';
+
+  if (Object.keys(errors).length) {
+    return res.status(400).json({ error: 'Validation failed', fields: errors });
+  }
+
+  const safeName    = String(name).trim();
+  const safeEmail   = String(email).trim().toLowerCase();
+  const safeMessage = String(message).trim();
+
+  // ── Store in DB ─────────────────────────────────────────────────────────────
+  db.prepare('INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)')
+    .run(safeName, safeEmail, safeMessage);
+
+  // ── Optional SMTP forward ───────────────────────────────────────────────────
+  if (mailer) {
+    try {
+      await mailer.sendMail({
+        from:    `"Keith Hinds Website" <${SMTP_USER}>`,
+        to:      CONTACT_TO,
+        replyTo: `"${safeName}" <${safeEmail}>`,
+        subject: `Contact form: ${safeName}`,
+        text:    `Name: ${safeName}\nEmail: ${safeEmail}\n\n${safeMessage}`,
+        html:    `<p><strong>Name:</strong> ${safeName}</p>` +
+                 `<p><strong>Email:</strong> ${safeEmail}</p>` +
+                 `<hr/><p>${safeMessage.replace(/\n/g, '<br/>')}</p>`,
+      });
+    } catch (mailErr) {
+      // Log but don't fail the request — the DB row is already saved
+      console.error('Contact SMTP send failed:', mailErr.message);
+    }
+  }
+
+  res.json({ ok: true });
+});
+
 // GET /api/posts  — public, returns published posts only
+// Adds server-derived `excerpt` and `read_time` fields; does not expose `body`.
 app.get('/api/posts', (req, res) => {
-  const posts = db
+  const rows = db
     .prepare('SELECT id, title, slug, body, cover_image, cover_focal_x, cover_focal_y, cover_zoom, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC')
     .all();
+  const posts = rows.map(({ body, ...rest }) => ({
+    ...rest,
+    excerpt:   makeExcerpt(body),
+    read_time: makeReadTime(body),
+  }));
   res.json(posts);
 });
 

@@ -13,13 +13,6 @@
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 3rem 2rem;
-    }
-
     .about-wrap {
       max-width: 760px;
       width: 100%;
@@ -148,7 +141,7 @@
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
@@ -158,7 +151,7 @@
       <a href="/contact">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 

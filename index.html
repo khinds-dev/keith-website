@@ -97,13 +97,8 @@
       flex-shrink: 0;
     }
 
-    /* ── Main content ── */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 2rem 2rem 3rem;
-    }
+    /* homepage: smaller top padding on main than the shared 3rem */
+    main { padding: 2rem 2rem 3rem; }
 
     .content {
       max-width: 760px;
@@ -248,17 +243,6 @@
       padding: 0.5rem 0;
     }
 
-    .section-more {
-      display: inline-block;
-      margin-top: 1rem;
-      font-size: 0.82rem;
-      color: #3b82d4;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .section-more:hover { text-decoration: underline; }
-
     /* ── Featured projects ── */
     .project-list {
       display: flex;
@@ -369,21 +353,36 @@
     .contact-btn:hover { background: #3b4045; }
 
     /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero { gap: 2rem; }
+      .hero-photo { width: 110px; height: 110px; }
+      main { padding: 1.5rem 1.5rem 2.5rem; }
+    }
+
     @media (max-width: 560px) {
       .hero {
         flex-direction: column;
         align-items: flex-start;
-        gap: 1.5rem;
+        gap: 1.25rem;
       }
       .hero-text h1 { font-size: 1.6rem; }
-      .hero-photo { width: 90px; height: 90px; }
+      .hero-photo { width: 88px; height: 88px; }
+      header { padding: 2rem 1.25rem 1.75rem; }
+      main { padding: 1.25rem 1.25rem 2.5rem; }
+      .navbar { padding: 0 1.25rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-text h1 { font-size: 1.45rem; }
+      .hero-text .bio { font-size: 0.9rem; }
+      .now-items { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
   <!-- Navigation -->
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/" class="active">Home</a>
@@ -393,7 +392,7 @@
       <a href="/contact">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 

@@ -13,38 +13,13 @@
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 3rem 2rem;
-    }
-
     .work-wrap {
       max-width: 760px;
       width: 100%;
     }
 
-    /* ── Page header ── */
-    .page-header-block {
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .page-header-block h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.4rem;
-    }
-
-    .page-header-block p {
-      color: #57606a;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin: 0;
-    }
+    /* work page overrides: more bottom margin on header block */
+    .page-header-block { margin-bottom: 3rem; }
 
     /* ── Section headings ── */
     .work-section {
@@ -243,16 +218,28 @@
       color: #57606a;
     }
 
+    @media (max-width: 768px) {
+      main { padding: 2rem 1.5rem; }
+    }
+
     @media (max-width: 600px) {
-      .tech-grid {
-        grid-template-columns: 1fr;
-      }
+      .tech-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      main { padding: 2rem 1.25rem; }
+      .navbar { padding: 0 1.25rem; }
+      /* Timeline — reduce indent on narrow screens */
+      .timeline { padding-left: 1.35rem; }
+      .timeline-dot { left: -1.35rem; }
+      .timeline-title { font-size: 0.95rem; }
+      .project-card { padding: 1rem 1.1rem; }
     }
   </style>
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Site navigation">
     <a href="/" class="site-name">Keith Hinds</a>
     <div class="nav-links" id="navLinks">
       <a href="/">Home</a>
@@ -262,7 +249,7 @@
       <a href="/contact">Contact</a>
     </div>
     <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
-      <span></span><span></span><span></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
   </nav>
 
