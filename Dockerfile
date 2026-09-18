@@ -17,7 +17,12 @@ COPY sitemap.xml /usr/share/nginx/html/sitemap.xml
 COPY css/shared.css /usr/share/nginx/html/css/shared.css
 COPY js/nav.js /usr/share/nginx/html/js/nav.js
 
-# Copy page directories (clean URLs: /portfolio, /contact, /blog, /blog/post, /admin)
+# Copy page directories (clean URLs: /about, /work, /portfolio, /contact, /blog, /blog/post, /admin)
+COPY about/index.html /usr/share/nginx/html/about/index.html
+COPY work/index.html /usr/share/nginx/html/work/index.html
+COPY work/this-website/index.html /usr/share/nginx/html/work/this-website/index.html
+COPY now/index.html /usr/share/nginx/html/now/index.html
+COPY interests/index.html /usr/share/nginx/html/interests/index.html
 COPY portfolio/index.html /usr/share/nginx/html/portfolio/index.html
 COPY contact/index.html /usr/share/nginx/html/contact/index.html
 COPY repos/index.html /usr/share/nginx/html/repos/index.html

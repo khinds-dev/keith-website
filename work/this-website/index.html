@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How this site is built — Keith Hinds</title>
+  <meta name="description" content="Architecture, stack, and deployment model for keithhinds.co.uk — static HTML served from a home Synology NAS via Cloudflare Tunnel." />
+  <link rel="canonical" href="https://www.keithhinds.co.uk/work/this-website" />
+  <meta property="og:title" content="How this site is built — Keith Hinds" />
+  <meta property="og:description" content="Architecture, stack, and deployment model for keithhinds.co.uk — static HTML served from a home Synology NAS via Cloudflare Tunnel." />
+  <meta property="og:url" content="https://www.keithhinds.co.uk/work/this-website" />
+  <meta property="og:image" content="https://www.keithhinds.co.uk/profile.jpg" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="/css/shared.css" />
+  <style>
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .wrap {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      font-size: 0.85rem;
+      color: #57606a;
+      margin-bottom: 1.75rem;
+    }
+
+    .breadcrumb a {
+      color: #3b82d4;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .breadcrumb span { margin: 0 0.4rem; }
+
+    /* ── Page header ── */
+    .page-header-block {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .page-header-block h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .page-header-block p {
+      color: #57606a;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── Sections ── */
+    .write-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .write-section h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .write-section p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: #1f2328;
+      margin-bottom: 0.9rem;
+    }
+
+    .write-section p:last-child { margin-bottom: 0; }
+
+    /* ── Diagram ── */
+    .diagram-wrap {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 2rem 1.5rem;
+      margin: 1.25rem 0;
+      overflow-x: auto;
+    }
+
+    .diagram-wrap svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .diagram-caption {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #57606a;
+      margin-top: 0.75rem;
+    }
+
+    /* ── Stack table ── */
+    .stack-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .stack-table th {
+      text-align: left;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #57606a;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .stack-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid #f0f2f4;
+      vertical-align: top;
+      line-height: 1.6;
+      color: #1f2328;
+    }
+
+    .stack-table td:first-child {
+      font-weight: 600;
+      white-space: nowrap;
+      color: #57606a;
+      width: 140px;
+    }
+
+    .stack-table tr:last-child td { border-bottom: none; }
+
+    /* ── Code block ── */
+    .code-block {
+      background: #1f2328;
+      color: #e6edf3;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.82rem;
+      line-height: 1.65;
+      overflow-x: auto;
+      margin: 1rem 0;
+      white-space: pre;
+    }
+
+    @media (max-width: 540px) {
+      .stack-table td:first-child {
+        width: 110px;
+        font-size: 0.82rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="site-name">Keith Hinds</a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/work" class="active">Work</a>
+      <a href="/blog">Writing</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main>
+    <div class="wrap">
+
+      <div class="breadcrumb">
+        <a href="/work">Work</a>
+        <span>/</span>
+        keithhinds.co.uk
+      </div>
+
+      <div class="page-header-block">
+        <h1>How this site is built</h1>
+        <p>A detailed look at the architecture, stack, and deployment model behind keithhinds.co.uk.</p>
+      </div>
+
+      <!-- Overview -->
+      <section class="write-section">
+        <h2>Overview</h2>
+        <p>
+          The site is built without frameworks: plain HTML, CSS, and vanilla JavaScript for every page.
+          Content is static where it can be, and a small Node.js/Express API handles the blog. The whole
+          thing runs on a Synology NAS in my home office, exposed to the internet via a Cloudflare Tunnel —
+          no cloud compute, no monthly hosting bill.
+        </p>
+        <p>
+          I built it this way deliberately. Static HTML loads instantly, is trivially cacheable, and
+          has no build pipeline to break. The infrastructure is under my control and costs only electricity
+          to run. The Cloudflare Tunnel means the NAS never has an inbound port open, which keeps the
+          attack surface small.
+        </p>
+      </section>
+
+      <!-- Architecture diagram -->
+      <section class="write-section">
+        <h2>Infrastructure diagram</h2>
+
+        <div class="diagram-wrap">
+          <!-- SVG infrastructure diagram -->
+          <svg width="640" height="280" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg"
+               font-family="-apple-system,'Segoe UI',system-ui,sans-serif" font-size="12">
+
+            <!-- Visitor box -->
+            <rect x="10" y="110" width="110" height="60" rx="6" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+            <text x="65" y="135" text-anchor="middle" font-weight="600" fill="#1f2328">Visitor</text>
+            <text x="65" y="152" text-anchor="middle" fill="#57606a" font-size="11">Browser</text>
+
+            <!-- Arrow: visitor → cloudflare -->
+            <line x1="120" y1="140" x2="168" y2="140" stroke="#d0d7de" stroke-width="1.5" marker-end="url(#arr)"/>
+            <text x="144" y="133" text-anchor="middle" fill="#57606a" font-size="10">HTTPS</text>
+
+            <!-- Cloudflare box -->
+            <rect x="170" y="100" width="120" height="80" rx="6" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="230" y="128" text-anchor="middle" font-weight="600" fill="#1f2328">Cloudflare</text>
+            <text x="230" y="145" text-anchor="middle" fill="#57606a" font-size="11">DNS + CDN</text>
+            <text x="230" y="162" text-anchor="middle" fill="#57606a" font-size="11">SSL termination</text>
+
+            <!-- Arrow: cloudflare → tunnel -->
+            <line x1="290" y1="140" x2="338" y2="140" stroke="#d0d7de" stroke-width="1.5" marker-end="url(#arr)"/>
+            <text x="314" y="133" text-anchor="middle" fill="#57606a" font-size="10">Tunnel</text>
+
+            <!-- Synology / Docker group -->
+            <rect x="340" y="30" width="290" height="220" rx="8" fill="#f7f8fa" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="6,3"/>
+            <text x="485" y="52" text-anchor="middle" font-size="11" fill="#57606a">Synology NAS · Docker Compose</text>
+
+            <!-- cloudflared container -->
+            <rect x="360" y="65" width="120" height="50" rx="6" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+            <text x="420" y="87" text-anchor="middle" font-weight="600" fill="#1f2328" font-size="11">cloudflared</text>
+            <text x="420" y="103" text-anchor="middle" fill="#57606a" font-size="10">Tunnel container</text>
+
+            <!-- Arrow: cloudflared → nginx -->
+            <line x1="480" y1="90" x2="508" y2="90" stroke="#d0d7de" stroke-width="1.5" marker-end="url(#arr)"/>
+
+            <!-- nginx container -->
+            <rect x="510" y="65" width="105" height="50" rx="6" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+            <text x="562" y="87" text-anchor="middle" font-weight="600" fill="#1f2328" font-size="11">nginx:alpine</text>
+            <text x="562" y="103" text-anchor="middle" fill="#57606a" font-size="10">Static HTML · :80</text>
+
+            <!-- Arrow: nginx → api -->
+            <line x1="562" y1="115" x2="562" y2="148" stroke="#d0d7de" stroke-width="1.5" marker-end="url(#arr)"/>
+            <text x="580" y="135" fill="#57606a" font-size="10">/api/*</text>
+
+            <!-- api container -->
+            <rect x="510" y="150" width="105" height="50" rx="6" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+            <text x="562" y="172" text-anchor="middle" font-weight="600" fill="#1f2328" font-size="11">Node.js API</text>
+            <text x="562" y="188" text-anchor="middle" fill="#57606a" font-size="10">Express · :3000</text>
+
+            <!-- Arrow: api → sqlite -->
+            <line x1="562" y1="200" x2="562" y2="228" stroke="#d0d7de" stroke-width="1.5" marker-end="url(#arr)"/>
+
+            <!-- sqlite volume -->
+            <rect x="510" y="230" width="105" height="40" rx="6" fill="#eef2ff" stroke="#a5b4fc" stroke-width="1.5"/>
+            <text x="562" y="252" text-anchor="middle" font-weight="600" fill="#3730a3" font-size="11">SQLite DB</text>
+
+            <!-- Arrow marker -->
+            <defs>
+              <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#d0d7de"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+        <p class="diagram-caption">Simplified infrastructure diagram. Tailscale mesh not shown.</p>
+      </section>
+
+      <!-- Stack -->
+      <section class="write-section">
+        <h2>Full stack</h2>
+        <table class="stack-table">
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Technology</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Front-end</td>
+              <td>Vanilla HTML5, CSS3, JavaScript (no framework). Shared CSS custom properties via <code>css/shared.css</code>. Shared nav JS via <code>js/nav.js</code>.</td>
+            </tr>
+            <tr>
+              <td>Web server</td>
+              <td>nginx:alpine inside Docker. Clean URLs via <code>try_files $uri $uri/ $uri/index.html</code>. Proxies <code>/api/*</code> to the Node.js container.</td>
+            </tr>
+            <tr>
+              <td>API</td>
+              <td>Node.js with Express. Handles blog post CRUD, image uploads, and the contact form. Runs in a separate container on port 3000.</td>
+            </tr>
+            <tr>
+              <td>Database</td>
+              <td>SQLite — a single <code>posts.db</code> file on a Docker volume. No separate database server needed.</td>
+            </tr>
+            <tr>
+              <td>Container host</td>
+              <td>Synology DS923+ NAS running Docker via Container Manager. Three containers: <code>keith-website</code> (nginx), <code>keith-api</code> (Node.js), <code>keith-cloudflared</code> (tunnel).</td>
+            </tr>
+            <tr>
+              <td>Networking</td>
+              <td>Cloudflare Tunnel (token-based) handles public ingress — no open inbound ports. Tailscale mesh for private admin access.</td>
+            </tr>
+            <tr>
+              <td>DNS / CDN</td>
+              <td>Cloudflare. SSL termination at the edge. Proxied A record pointing to the tunnel.</td>
+            </tr>
+            <tr>
+              <td>Deploy</td>
+              <td>Git push to GitHub, SCP changed files to NAS, rebuild Docker containers with <code>docker compose up -d --build</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Docker Compose snippet -->
+      <section class="write-section">
+        <h2>Container setup</h2>
+        <p>
+          Three containers defined in a single <code>docker-compose.yml</code>. The nginx and API containers
+          share a Docker network so nginx can proxy to <code>keith-api:3000</code> by name. The blog
+          database lives on a named volume mounted into the API container.
+        </p>
+        <div class="code-block">services:
+  keith-website:          # nginx — serves static HTML
+    build: .
+    ports: ["8080:80"]
+    networks: [site-net]
+
+  keith-api:              # Node.js/Express — blog API
+    build: ./api
+    expose: ["3000"]
+    volumes: [blog_data:/data]
+    networks: [site-net]
+
+  keith-cloudflared:      # Cloudflare Tunnel
+    image: cloudflare/cloudflared
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: &lt;token&gt;
+    networks: [site-net]
+
+volumes:
+  blog_data:
+networks:
+  site-net:</div>
+      </section>
+
+      <!-- Why no cloud -->
+      <section class="write-section">
+        <h2>Why self-hosted?</h2>
+        <p>
+          Partly pragmatic, partly a learning exercise. Running infrastructure at home forces you to
+          understand the whole stack — DNS, networking, containers, process management — rather than
+          letting a PaaS abstract it away. I already had the NAS for backups, so the marginal cost of
+          running a few extra containers is essentially zero.
+        </p>
+        <p>
+          The Cloudflare Tunnel approach is neat because it flips the traditional model: instead of
+          the internet calling in, my NAS calls out to Cloudflare and holds an encrypted connection open.
+          No inbound firewall rules needed, no dynamic DNS headaches, and Cloudflare handles SSL at the edge.
+        </p>
+        <p>
+          For a personal site, this is overkill in the best possible way. For anything handling sensitive
+          data or requiring high availability, a managed platform would make more sense. But for a blog
+          and portfolio, the reliability has been excellent.
+        </p>
+      </section>
+
+      <!-- Source -->
+      <section class="write-section">
+        <h2>Source code</h2>
+        <p>
+          The full source is on GitHub at
+          <a href="https://github.com/khinds-dev/keith-website" target="_blank" rel="noopener"
+             style="color:#3b82d4;">github.com/khinds-dev/keith-website</a>.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="yr"></span> Keith Hinds
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </footer>
+
+  <script src="/js/nav.js"></script>
+
+</body>
+</html>

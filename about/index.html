@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Keith Hinds</title>
+  <meta name="description" content="About Keith Hinds — software engineer at IBM with a background in electronic engineering, and how I got here." />
+  <link rel="canonical" href="https://www.keithhinds.co.uk/about" />
+  <meta property="og:title" content="About — Keith Hinds" />
+  <meta property="og:description" content="About Keith Hinds — software engineer at IBM with a background in electronic engineering, and how I got here." />
+  <meta property="og:url" content="https://www.keithhinds.co.uk/about" />
+  <meta property="og:image" content="https://www.keithhinds.co.uk/profile.jpg" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="/css/shared.css" />
+  <style>
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .about-wrap {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    /* ── Page header ── */
+    .page-intro {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .page-intro-photo {
+      flex-shrink: 0;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid #e5e7eb;
+    }
+
+    .page-intro-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .page-intro-text h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+
+    .page-intro-text p {
+      color: #57606a;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── Sections ── */
+    .about-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .about-section h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .about-section p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: #1f2328;
+      margin-bottom: 0.9rem;
+    }
+
+    .about-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ── How I work list ── */
+    .how-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .how-list li {
+      font-size: 0.9rem;
+      color: #1f2328;
+      line-height: 1.6;
+      padding: 0.75rem 1rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    .how-list li strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    /* ── Interests grid ── */
+    .interests-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .interest-tag {
+      font-size: 0.85rem;
+      padding: 0.35rem 0.85rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      color: #1f2328;
+      font-weight: 500;
+    }
+
+    @media (max-width: 600px) {
+      .page-intro {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+
+      .how-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="site-name">Keith Hinds</a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/about" class="active">About</a>
+      <a href="/work">Work</a>
+      <a href="/blog">Writing</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main>
+    <div class="about-wrap">
+
+      <div class="page-intro">
+        <div class="page-intro-photo">
+          <img src="/profile.jpg" alt="Keith Hinds" />
+        </div>
+        <div class="page-intro-text">
+          <h1>About Me</h1>
+          <p>Software engineer at IBM · Electronic engineering background · Based in the UK</p>
+        </div>
+      </div>
+
+      <section class="about-section">
+        <h2>Background</h2>
+        <p>
+          I grew up with a deep curiosity about how things work — from electronics to software to systems.
+          That led me to study electronic engineering, which gave me a solid grounding in hardware,
+          digital logic, and signal processing before I made the move into software full-time.
+        </p>
+        <p>
+          What makes my path a bit unusual is that I completed my degree while working full-time.
+          It took discipline and time management, but it also taught me how to learn under pressure
+          and deliver when it matters — habits that have served me well in a demanding technical career.
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>Career at IBM</h2>
+        <p>
+          I joined IBM and have worked across software engineering, testing, and tooling.
+          The majority of my career has been focused on CICS — IBM's battle-tested transaction processing
+          middleware used by banks, airlines, and government systems worldwide. It's the kind of
+          software that has to be right, and working on it has shaped how I think about reliability,
+          correctness, and the value of rigorous testing.
+        </p>
+        <p>
+          Over the years I've worked on automated test frameworks, build pipelines, developer tooling,
+          and feature delivery. I've contributed to products used at global scale, and I take pride
+          in writing code that lasts.
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>How I work</h2>
+        <ul class="how-list">
+          <li><strong>Simple over clever</strong>Code that's easy to read is easy to maintain. I prefer clear, obvious solutions.</li>
+          <li><strong>Test as you go</strong>Testing isn't a phase — it's part of development. I write tests alongside code, not after.</li>
+          <li><strong>Understand the problem first</strong>Before writing a line of code, I try to fully understand what's being asked — and why.</li>
+          <li><strong>Communicate early</strong>If something is unclear, a quick conversation saves hours of rework. I'd rather ask than assume.</li>
+          <li><strong>Ownership</strong>I take responsibility for my work end-to-end: from the first commit to production and beyond.</li>
+          <li><strong>Keep learning</strong>Technology moves fast. I stay current by building things, reading, and being willing to be wrong.</li>
+        </ul>
+      </section>
+
+      <section class="about-section">
+        <h2>Outside of work</h2>
+        <p>
+          When I'm not in front of a screen, you'll probably find me watching football, obsessing
+          over aviation, or out for a walk with the dog. I've always been fascinated by aircraft —
+          the engineering, the history, the sheer scale of commercial aviation as a system.
+        </p>
+        <p>
+          I'm also a film person. Science fiction in particular — good sci-fi makes you think about
+          what it means to be human, and the best of it ages remarkably well.
+        </p>
+        <div class="interests-grid" style="margin-top:0.75rem;">
+          <span class="interest-tag">Aviation</span>
+          <span class="interest-tag">Football</span>
+          <span class="interest-tag">Dogs</span>
+          <span class="interest-tag">Science fiction</span>
+          <span class="interest-tag">History</span>
+          <span class="interest-tag">Travel</span>
+          <span class="interest-tag">Film</span>
+          <span class="interest-tag">Technology</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="yr"></span> Keith Hinds
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </footer>
+
+  <script src="/js/nav.js"></script>
+
+</body>
+</html>

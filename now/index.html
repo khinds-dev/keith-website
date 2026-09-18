@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Now — Keith Hinds</title>
+  <meta name="description" content="What Keith Hinds is currently working on, learning, and doing — a now page." />
+  <link rel="canonical" href="https://www.keithhinds.co.uk/now" />
+  <meta property="og:title" content="Now — Keith Hinds" />
+  <meta property="og:description" content="What Keith Hinds is currently working on, learning, and doing — a now page." />
+  <meta property="og:url" content="https://www.keithhinds.co.uk/now" />
+  <meta property="og:image" content="https://www.keithhinds.co.uk/profile.jpg" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="/css/shared.css" />
+  <style>
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .now-wrap {
+      max-width: 680px;
+      width: 100%;
+    }
+
+    /* ── Page header ── */
+    .page-header-block {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .page-header-block h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+
+    .page-header-block .subtitle {
+      color: #57606a;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .page-header-block .subtitle a {
+      color: #3b82d4;
+      text-decoration: none;
+    }
+
+    .page-header-block .subtitle a:hover { text-decoration: underline; }
+
+    /* ── Sections ── */
+    .now-section {
+      margin-bottom: 2rem;
+    }
+
+    .now-section h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .now-section p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: #1f2328;
+      margin-bottom: 0.8rem;
+    }
+
+    .now-section p:last-child { margin-bottom: 0; }
+
+    /* ── Item list ── */
+    .now-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .now-list li {
+      font-size: 0.9rem;
+      color: #1f2328;
+      line-height: 1.65;
+      padding: 0.7rem 1rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    .now-list li strong {
+      font-weight: 600;
+      margin-right: 0.3rem;
+    }
+
+    /* ── Last updated footer ── */
+    .last-updated {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.82rem;
+      color: #57606a;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="site-name">Keith Hinds</a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/work">Work</a>
+      <a href="/blog">Writing</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main>
+    <div class="now-wrap">
+
+      <div class="page-header-block">
+        <h1>Now</h1>
+        <p class="subtitle">
+          A snapshot of what I'm up to right now. Inspired by <a href="https://nownownow.com/about" target="_blank" rel="noopener">nownownow.com</a>.
+        </p>
+      </div>
+
+      <section class="now-section">
+        <h2>Building</h2>
+        <ul class="now-list">
+          <li><strong>This website.</strong> Ongoing redesign — new pages, better structure, cleaner content. The site itself is a living side project.</li>
+          <li><strong>Blog.</strong> Writing more regularly about things I'm working on and thinking about. Getting the tooling right so there's less friction to publishing.</li>
+        </ul>
+      </section>
+
+      <section class="now-section">
+        <h2>Learning</h2>
+        <ul class="now-list">
+          <li><strong>AI tooling.</strong> Using AI assistants in day-to-day development — understanding where they genuinely help and where they need supervision.</li>
+          <li><strong>Infrastructure.</strong> Continuing to push on my homelab — better monitoring, more automation, cleaner container setups.</li>
+          <li><strong>Writing.</strong> Trying to write more clearly and publish more often. Treating it as a skill that needs practice rather than a finished product that needs perfection.</li>
+        </ul>
+      </section>
+
+      <section class="now-section">
+        <h2>At work</h2>
+        <p>
+          Software engineering at IBM — contributing to test automation, tooling, and feature delivery within
+          the CICS product. Staying on top of a constantly evolving set of tools and practices while keeping
+          core product quality high.
+        </p>
+      </section>
+
+      <section class="now-section">
+        <h2>Outside of work</h2>
+        <ul class="now-list">
+          <li><strong>Football.</strong> Following the season, the highs and the lows in roughly equal measure.</li>
+          <li><strong>Aviation.</strong> Reading, watching, and generally obsessing over aircraft and the business of airlines.</li>
+          <li><strong>Walking.</strong> Out most days with the dog — one of the better habits I've built.</li>
+          <li><strong>Film.</strong> Working through a mental backlog of things I've been meaning to watch. Currently favouring sci-fi.</li>
+        </ul>
+      </section>
+
+      <p class="last-updated">Last updated: July 2025</p>
+
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="yr"></span> Keith Hinds
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </footer>
+
+  <script src="/js/nav.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work — Keith Hinds</title>
+  <meta name="description" content="Professional experience, IBM career timeline, technical areas, and featured projects — Keith Hinds." />
+  <link rel="canonical" href="https://www.keithhinds.co.uk/work" />
+  <meta property="og:title" content="Work — Keith Hinds" />
+  <meta property="og:description" content="Professional experience, IBM career timeline, technical areas, and featured projects — Keith Hinds." />
+  <meta property="og:url" content="https://www.keithhinds.co.uk/work" />
+  <meta property="og:image" content="https://www.keithhinds.co.uk/profile.jpg" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="/css/shared.css" />
+  <style>
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .work-wrap {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    /* ── Page header ── */
+    .page-header-block {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .page-header-block h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .page-header-block p {
+      color: #57606a;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── Section headings ── */
+    .work-section {
+      margin-bottom: 2.75rem;
+    }
+
+    .work-section h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* ── Timeline ── */
+    .timeline {
+      position: relative;
+      padding-left: 1.75rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 6px;
+      bottom: 6px;
+      width: 1px;
+      background: #e5e7eb;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -1.75rem;
+      top: 6px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #1f2328;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px #e5e7eb;
+    }
+
+    .timeline-dot.current {
+      background: #3b82d4;
+      box-shadow: 0 0 0 1px #3b82d4;
+    }
+
+    .timeline-date {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #57606a;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .timeline-company {
+      font-size: 0.875rem;
+      color: #57606a;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: #1f2328;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* ── Technical areas ── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .tech-card {
+      padding: 1rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    .tech-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .tech-card p {
+      font-size: 0.85rem;
+      color: #57606a;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── Skills tags ── */
+    .skill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .skill-tag {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.75rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      color: #1f2328;
+      font-weight: 500;
+    }
+
+    /* ── Project cards ── */
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .project-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: border-color 0.15s;
+    }
+
+    .project-card:hover {
+      border-color: #3b82d4;
+    }
+
+    a.project-card {
+      cursor: pointer;
+    }
+
+    .project-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .project-card .project-link-label {
+      font-size: 0.8rem;
+      color: #3b82d4;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .project-card p {
+      font-size: 0.9rem;
+      color: #57606a;
+      line-height: 1.65;
+      margin: 0 0 0.75rem;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .project-tag {
+      font-size: 0.78rem;
+      padding: 0.2rem 0.6rem;
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      color: #57606a;
+    }
+
+    @media (max-width: 600px) {
+      .tech-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="site-name">Keith Hinds</a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/work" class="active">Work</a>
+      <a href="/blog">Writing</a>
+      <a href="/contact">Contact</a>
+    </div>
+    <button class="hamburger" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <main>
+    <div class="work-wrap">
+
+      <div class="page-header-block">
+        <h1>Work</h1>
+        <p>Professional experience, technical areas, and selected projects.</p>
+      </div>
+
+      <!-- Experience timeline -->
+      <section class="work-section">
+        <h2>Experience</h2>
+        <div class="timeline">
+
+          <div class="timeline-item">
+            <div class="timeline-dot current"></div>
+            <div class="timeline-date">2012 – Present</div>
+            <div class="timeline-title">Software Engineer / Developer / Tester</div>
+            <div class="timeline-company">IBM · Hursley, UK</div>
+            <p class="timeline-desc">
+              Working across the full software lifecycle — design, development, testing, and delivery —
+              within enterprise product teams. Core focus on CICS Transaction Server: IBM's high-throughput
+              middleware platform running the world's most critical business systems. Contributed to
+              automated test frameworks, continuous integration pipelines, developer tooling, and feature
+              delivery across multiple CICS releases.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">2008 – 2012</div>
+            <div class="timeline-title">Electronic Engineering Graduate</div>
+            <div class="timeline-company">University (part-time) · UK</div>
+            <p class="timeline-desc">
+              Completed a full-time BEng in Electronic Engineering while working full-time — covering
+              digital logic, microprocessors, signal processing, and software fundamentals. The experience
+              of studying alongside a career built strong habits around time management, independent
+              learning, and delivering under pressure.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Technical areas -->
+      <section class="work-section">
+        <h2>Technical areas</h2>
+        <div class="tech-grid">
+          <div class="tech-card">
+            <h3>CICS &amp; Enterprise Middleware</h3>
+            <p>Deep knowledge of CICS Transaction Server — transaction management, resource definitions, JVM servers, Liberty runtime integration, and 3270 terminal behaviour.</p>
+          </div>
+          <div class="tech-card">
+            <h3>Automated Testing</h3>
+            <p>Framework design and implementation for automated system-level testing. Focused on reliability, repeatability, and making failure diagnosis fast and clear.</p>
+          </div>
+          <div class="tech-card">
+            <h3>CI/CD &amp; Tooling</h3>
+            <p>Build and release pipelines using Jenkins. Scripting and tooling to speed up developer workflows, reduce manual steps, and catch regressions early.</p>
+          </div>
+          <div class="tech-card">
+            <h3>Web &amp; Full-Stack</h3>
+            <p>Vanilla HTML/CSS/JS front-ends, Node.js/Express APIs, SQLite, and Nginx. Self-hosted on Docker with Cloudflare Tunnels. No framework complexity unless genuinely needed.</p>
+          </div>
+          <div class="tech-card">
+            <h3>Infrastructure &amp; Homelab</h3>
+            <p>Synology NAS, Docker Compose, Tailscale mesh networking, Cloudflare DNS. Running personal services reliably on consumer hardware.</p>
+          </div>
+          <div class="tech-card">
+            <h3>Problem Solving</h3>
+            <p>Electronic engineering background means comfort with low-level systems thinking. Good at finding root causes rather than papering over symptoms.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Skills -->
+      <section class="work-section">
+        <h2>Skills &amp; tooling</h2>
+        <div class="skill-group">
+          <span class="skill-tag">Java</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">JavaScript / ES6+</span>
+          <span class="skill-tag">HTML5</span>
+          <span class="skill-tag">CSS3</span>
+          <span class="skill-tag">C</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">Express</span>
+          <span class="skill-tag">SQLite</span>
+          <span class="skill-tag">Docker &amp; Compose</span>
+          <span class="skill-tag">Nginx</span>
+          <span class="skill-tag">Jenkins CI/CD</span>
+          <span class="skill-tag">Git &amp; GitHub</span>
+          <span class="skill-tag">Cloudflare Tunnels</span>
+          <span class="skill-tag">Tailscale</span>
+          <span class="skill-tag">CICS</span>
+          <span class="skill-tag">z/OS</span>
+          <span class="skill-tag">Automated Testing</span>
+          <span class="skill-tag">Defect Analysis</span>
+        </div>
+      </section>
+
+      <!-- Featured projects -->
+      <section class="work-section">
+        <h2>Featured projects</h2>
+        <div class="project-list">
+
+          <a class="project-card" href="/work/this-website">
+            <div class="project-card-header">
+              <h3>keithhinds.co.uk</h3>
+              <span class="project-link-label">Read more →</span>
+            </div>
+            <p>
+              This website — designed, built, and deployed from scratch. Static HTML/CSS/JS served via Nginx
+              inside Docker on a Synology NAS at home, tunnelled to the public internet with Cloudflare.
+              A Node.js/Express API backs the blog with a SQLite database. No cloud hosting fees required.
+            </p>
+            <div class="project-tags">
+              <span class="project-tag">HTML / CSS / JS</span>
+              <span class="project-tag">Node.js</span>
+              <span class="project-tag">Docker</span>
+              <span class="project-tag">Nginx</span>
+              <span class="project-tag">Cloudflare Tunnel</span>
+              <span class="project-tag">Synology NAS</span>
+            </div>
+          </a>
+
+          <a class="project-card" href="https://github.com/khinds-dev" target="_blank" rel="noopener">
+            <div class="project-card-header">
+              <h3>Open source on GitHub</h3>
+              <span class="project-link-label">github.com/khinds-dev →</span>
+            </div>
+            <p>
+              Public repositories covering web projects, automation scripts, homelab infrastructure, and
+              personal tooling. A mix of finished and work-in-progress projects, mostly built to scratch
+              a specific itch.
+            </p>
+            <div class="project-tags">
+              <span class="project-tag">Various</span>
+              <span class="project-tag">Open source</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="yr"></span> Keith Hinds
+    <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  </footer>
+
+  <script src="/js/nav.js"></script>
+
+</body>
+</html>
