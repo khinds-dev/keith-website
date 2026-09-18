@@ -134,11 +134,11 @@ This section tracks the full redesign brief agreed in the planning session. Upda
 
 ### Phase 4 — CSS cleanup, accessibility, API improvements
 
-- [ ] Replace all remaining per-page duplicate CSS with references to `css/shared.css`; verify visual consistency across every page after extraction
-- [ ] Accessibility audit: fix heading hierarchy on every page; add missing `aria-label`s; ensure keyboard focus styles are visible; check colour contrast of muted text (`#57606a` on `#ffffff`); add meaningful `alt` text to all images
-- [ ] Responsive audit: fix layouts on mobile (≤480px) and tablet (≤768px) for homepage hero, work/experience timeline, blog post body, repos filter bar
-- [ ] **API** (`api/server.js`): add `excerpt` and `read_time` fields to `GET /api/posts` response — derived server-side from `body`, not stored; backward compatible
-- [ ] **API** (`api/server.js`): add `POST /api/contact` endpoint — validate name/email/message, store in a new `contacts` table (or forward via email if SMTP env vars are set); remove sole reliance on Formspree
+- [x] Replace all remaining per-page duplicate CSS with references to `css/shared.css`; verify visual consistency across every page after extraction
+- [x] Accessibility audit: fix heading hierarchy on every page; add missing `aria-label`s; ensure keyboard focus styles are visible; check colour contrast of muted text (`#57606a` on `#ffffff`); add meaningful `alt` text to all images
+- [x] Responsive audit: fix layouts on mobile (≤480px) and tablet (≤768px) for homepage hero, work/experience timeline, blog post body, repos filter bar
+- [x] **API** (`api/server.js`): add `excerpt` and `read_time` fields to `GET /api/posts` response — derived server-side from `body`, not stored; backward compatible
+- [x] **API** (`api/server.js`): add `POST /api/contact` endpoint — validate name/email/message, store in a new `contacts` table (or forward via email if SMTP env vars are set); remove sole reliance on Formspree
 
 ---
 
