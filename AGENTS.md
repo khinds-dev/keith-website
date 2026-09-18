@@ -21,6 +21,9 @@ This file provides guidance to agents when working with code in this repository.
 - The `/admin` page is intentionally excluded from public navigation.
 - When adding or editing nav menus, update **all** page files to keep them consistent.
 
+## Pace & Stopping Rule
+- **Complete one phase or named section at a time, then stop.** After finishing a section, summarise what was done and wait for the user to say "continue" or start a fresh task. Never automatically start the next phase or section.
+
 ## Git Workflow Rules
 - **Always `git pull` before making any changes.** Run `git pull origin main` at the start of every session and before starting any new task. This prevents merge conflicts caused by external commits.
 - **Never use `git checkout --theirs` or `git checkout --ours` to resolve merge conflicts** — these silently discard one side's changes entirely. Always inspect the conflict manually, keep both sides' intended changes, then `git add` and continue.
