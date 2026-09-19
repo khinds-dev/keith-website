@@ -144,11 +144,11 @@ This section tracks the full redesign brief agreed in the planning session. Upda
 
 ### Phase 5 — Content & SEO
 
-- [ ] Write genuine content for `/about` — career story, degree while working full-time, IBM journey, problem-solving approach, outside interests
-- [ ] Write genuine content for `/now` — current work focus, personal projects in progress, learning areas, outside-work activities; include last updated date
-- [ ] Write 2–3 project entries for `/work` beyond the website itself (pick from GitHub repos); write the `/work/this-website` architecture page properly
-- [ ] Generate `sitemap.xml` listing all public pages with accurate `lastmod` dates; add JSON-LD `Person` structured data to homepage
-- [ ] Write a short interests overview for `/interests` — genuine, personal, no filler
+- [x] Write genuine content for `/about` — career story, degree while working full-time, IBM journey, problem-solving approach, outside interests
+- [x] Write genuine content for `/now` — current work focus, personal projects in progress, learning areas, outside-work activities; include last updated date
+- [x] Write 2–3 project entries for `/work` beyond the website itself (pick from GitHub repos); write the `/work/this-website` architecture page properly
+- [x] Generate `sitemap.xml` listing all public pages with accurate `lastmod` dates; add JSON-LD `Person` structured data to homepage
+- [x] Write a short interests overview for `/interests` — genuine, personal, no filler
 
 ---
 
