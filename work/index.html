@@ -258,7 +258,7 @@
 
       <div class="page-header-block">
         <h1>Work</h1>
-        <p>Professional experience, technical areas, and selected projects.</p>
+        <p>Professional experience, technical areas, and selected projects. Currently based at IBM Hursley, UK.</p>
       </div>
 
       <!-- Experience timeline -->
@@ -269,27 +269,33 @@
           <div class="timeline-item">
             <div class="timeline-dot current"></div>
             <div class="timeline-date">2012 – Present</div>
-            <div class="timeline-title">Software Engineer / Developer / Tester</div>
+            <div class="timeline-title">Software Engineer</div>
             <div class="timeline-company">IBM · Hursley, UK</div>
             <p class="timeline-desc">
-              Working across the full software lifecycle — design, development, testing, and delivery —
-              within enterprise product teams. Core focus on CICS Transaction Server: IBM's high-throughput
-              middleware platform running the world's most critical business systems. Contributed to
-              automated test frameworks, continuous integration pipelines, developer tooling, and feature
-              delivery across multiple CICS releases.
+              Over a decade working on CICS Transaction Server — IBM's high-throughput middleware platform
+              that processes billions of transactions daily for banks, airlines, and government systems
+              worldwide. Roles have spanned the full software lifecycle: feature development, automated
+              testing, CI/CD pipelines, developer tooling, and defect investigation across multiple
+              major product releases.
+            </p>
+            <p class="timeline-desc" style="margin-top:0.5rem;">
+              Current focus: test automation engineering — building frameworks and tooling that let the
+              team move faster while ensuring regressions are caught before they reach production.
+              This means writing production-quality code whose job is to test other production-quality
+              code, which turns out to require just as much design thought as feature work.
             </p>
           </div>
 
           <div class="timeline-item">
             <div class="timeline-dot"></div>
             <div class="timeline-date">2008 – 2012</div>
-            <div class="timeline-title">Electronic Engineering Graduate</div>
-            <div class="timeline-company">University (part-time) · UK</div>
+            <div class="timeline-title">BEng Electronic Engineering</div>
+            <div class="timeline-company">Part-time study · UK</div>
             <p class="timeline-desc">
-              Completed a full-time BEng in Electronic Engineering while working full-time — covering
-              digital logic, microprocessors, signal processing, and software fundamentals. The experience
-              of studying alongside a career built strong habits around time management, independent
-              learning, and delivering under pressure.
+              Completed a full BEng in Electronic Engineering while working full-time. The degree covered
+              digital logic, microprocessors, signal processing, and embedded software. Studying alongside
+              a job taught discipline around time management, self-directed learning, and delivering
+              under pressure — habits that translate directly to professional software engineering.
             </p>
           </div>
 
@@ -360,13 +366,14 @@
 
           <a class="project-card" href="/work/this-website">
             <div class="project-card-header">
-              <h3>keithhinds.co.uk</h3>
-              <span class="project-link-label">Read more →</span>
+              <h3>keithhinds.co.uk — this site</h3>
+              <span class="project-link-label">Architecture write-up →</span>
             </div>
             <p>
-              This website — designed, built, and deployed from scratch. Static HTML/CSS/JS served via Nginx
-              inside Docker on a Synology NAS at home, tunnelled to the public internet with Cloudflare.
-              A Node.js/Express API backs the blog with a SQLite database. No cloud hosting fees required.
+              Designed, built, and self-hosted from scratch. Static HTML/CSS/JS with no framework served via
+              Nginx inside Docker. A Node.js/Express API backs the blog with a SQLite database. The whole
+              thing runs on a Synology NAS at home and is exposed to the internet via a Cloudflare Tunnel —
+              no open inbound ports, no cloud hosting bill.
             </p>
             <div class="project-tags">
               <span class="project-tag">HTML / CSS / JS</span>
@@ -374,19 +381,73 @@
               <span class="project-tag">Docker</span>
               <span class="project-tag">Nginx</span>
               <span class="project-tag">Cloudflare Tunnel</span>
-              <span class="project-tag">Synology NAS</span>
+              <span class="project-tag">SQLite</span>
             </div>
           </a>
 
+          <div class="project-card">
+            <div class="project-card-header">
+              <h3>Personal blog platform</h3>
+              <span class="project-link-label">Part of this site</span>
+            </div>
+            <p>
+              A custom blog API built with Node.js and Express, backed by SQLite. Handles post creation,
+              editing, image uploads, and serving posts with server-side computed excerpt and reading time
+              fields. An admin interface lets me write and publish without touching the database directly.
+              The front-end Markdown renderer is hand-rolled: no libraries, handles fenced code blocks,
+              ordered and unordered lists, headings with IDs, and inline formatting.
+            </p>
+            <p>
+              The interesting design constraint was keeping the whole thing deployable as a single
+              <code style="font-size:0.85em;background:#f7f8fa;padding:0.1rem 0.35rem;border-radius:3px;border:1px solid #e5e7eb;">docker compose up</code>
+              — no external services, no managed database, no secrets beyond the Cloudflare tunnel token.
+            </p>
+            <div class="project-tags">
+              <span class="project-tag">Node.js</span>
+              <span class="project-tag">Express</span>
+              <span class="project-tag">SQLite</span>
+              <span class="project-tag">Docker</span>
+              <span class="project-tag">Vanilla JS</span>
+            </div>
+          </div>
+
+          <div class="project-card">
+            <div class="project-card-header">
+              <h3>CICS test automation work</h3>
+              <span class="project-link-label">IBM internal</span>
+            </div>
+            <p>
+              At IBM I've built and maintained automated test frameworks for CICS Transaction Server —
+              system-level tests that exercise the full product stack including 3270 terminal interactions,
+              JVM servers, Liberty runtime integration, and transaction management behaviour. The framework
+              runs thousands of test scenarios across multiple CICS configurations and release streams,
+              with test output designed for fast failure triage.
+            </p>
+            <p>
+              The interesting engineering problems: making test environments reliably reproducible,
+              keeping the test suite fast enough to run in CI without sacrificing coverage, and designing
+              failure output that tells you exactly what went wrong without requiring you to rerun the test
+              in a debugger. Most of the real work is in the infrastructure around the tests, not the tests
+              themselves.
+            </p>
+            <div class="project-tags">
+              <span class="project-tag">Java</span>
+              <span class="project-tag">CICS</span>
+              <span class="project-tag">z/OS</span>
+              <span class="project-tag">Test automation</span>
+              <span class="project-tag">CI/CD</span>
+              <span class="project-tag">Jenkins</span>
+            </div>
+          </div>
+
           <a class="project-card" href="https://github.com/khinds-dev" target="_blank" rel="noopener">
             <div class="project-card-header">
-              <h3>Open source on GitHub</h3>
+              <h3>More on GitHub</h3>
               <span class="project-link-label">github.com/khinds-dev →</span>
             </div>
             <p>
-              Public repositories covering web projects, automation scripts, homelab infrastructure, and
-              personal tooling. A mix of finished and work-in-progress projects, mostly built to scratch
-              a specific itch.
+              Public repositories covering personal tooling, automation scripts, and smaller web projects.
+              Mostly things built to scratch a specific itch or learn something new.
             </p>
             <div class="project-tags">
               <span class="project-tag">Various</span>
