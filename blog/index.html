@@ -191,8 +191,8 @@
                 return '<div class="post-tile-image-wrap"><img class="post-tile-image" src="' + escAttr(p.cover_image) + '" alt="" loading="lazy" data-fx="' + fx + '" data-fy="' + fy + '" data-fz="' + fz + '" /></div>';
               })()
             : IMAGE_PLACEHOLDER;
-          var excerpt = deriveExcerpt(p.body || '', 160);
-          var readTime = calcReadTime(p.body || '');
+          var excerpt = p.excerpt || '';
+          var readTime = p.read_time ? p.read_time + ' min read' : '1 min read';
           return '<a class="post-tile" href="/blog/post?slug=' + encodeURIComponent(p.slug) + '">' +
             imgHtml +
             '<div class="post-tile-body">' +
