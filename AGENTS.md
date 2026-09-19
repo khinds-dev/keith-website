@@ -154,9 +154,10 @@ This section tracks the full redesign brief agreed in the planning session. Upda
 
 ### Phase 6 — Final review & deployment
 
-- [ ] Full cross-page visual consistency check — typography, spacing, nav active states, footer, responsive behaviour
-- [ ] Verify all internal links work on every page (including new pages)
-- [ ] Commit, push to GitHub, SCP all changed files to Synology, rebuild Docker containers
+- [x] Full cross-page visual consistency check — typography, spacing, nav active states, footer, responsive behaviour
+- [x] Verify all internal links work on every page (including new pages)
+- [x] Commit and push to GitHub — committed 89c1214 "Phase 6: fix relative profile.jpg path on homepage"
+- [ ] SCP all changed files to Synology, rebuild Docker containers — WAITING for explicit deploy instruction
 - [ ] Post-deploy verification: `curl` each route on the Synology to confirm 200s; check 404 page works; check blog API still returns posts
 
 ---
