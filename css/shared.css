@@ -22,6 +22,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: var(--nav-height);
 }
 
 /* ── Nav bar ── */
@@ -32,8 +33,10 @@ body {
   padding: 0 2rem;
   height: var(--nav-height);
   border-bottom: 1px solid var(--color-border);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   background: var(--color-bg);
   z-index: 100;
 }
