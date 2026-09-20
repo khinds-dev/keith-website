@@ -106,9 +106,17 @@ body {
    ```powershell
    & "C:\Program Files\Git\bin\git.exe" add -A ; if ($?) { & "C:\Program Files\Git\bin\git.exe" commit -m "..." } ; if ($?) { & "C:\Program Files\Git\bin\git.exe" push origin main }
    ```
-3. **Copy changed files to Synology** via legacy SCP (`-O` is required, `-P 83`). Copy only the files that changed. Common files:
+3. **Copy changed files to Synology** via legacy SCP (`-O` is required, `-P 83`). Copy only the files that changed. **Always use explicit destination paths — never a bare directory destination for `index.html` files** (SCP strips the source directory and will overwrite the wrong file). Non-`index.html` files (e.g. `profile.jpg`) are safe to send to a directory destination. Common files:
    ```powershell
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+   # Root-level files (non-index.html — directory destination is safe here)
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+   # Page index.html files — always explicit destination path
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 about/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/about/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 work/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/work/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 work/this-website/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/work/this-website/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 now/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/now/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 interests/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/interests/index.html
    & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/portfolio/index.html
    & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 contact/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/contact/index.html
    & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 repos/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/repos/index.html
