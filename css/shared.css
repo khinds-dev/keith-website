@@ -12,6 +12,11 @@
   --nav-height:    52px;
 }
 
+/* Anchor jump offset — prevents fixed navbar from covering jump targets */
+html {
+  scroll-padding-top: var(--nav-height);
+}
+
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -38,7 +43,7 @@ body {
   left: 0;
   right: 0;
   background: var(--color-bg);
-  z-index: 100;
+  z-index: 1000;
 }
 
 .navbar .site-name {
@@ -98,7 +103,7 @@ body {
   .hamburger { display: flex; }
   .nav-links {
     display: none;
-    position: absolute;
+    position: fixed;
     top: var(--nav-height);
     left: 0;
     right: 0;
@@ -106,7 +111,9 @@ body {
     border-bottom: 1px solid var(--color-border);
     flex-direction: column;
     padding: 0.5rem 0;
-    z-index: 100;
+    z-index: 1000;
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
   }
   .nav-links.open { display: flex; }
   .nav-links a {
