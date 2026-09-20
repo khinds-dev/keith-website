@@ -124,11 +124,24 @@ body {
    ```powershell
    & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
    ```
+6. **Purge Cloudflare cache** after every rebuild. Credentials are stored in `.env` (machine-local, never committed). Read them and call the purge API:
+   ```powershell
+   $cfg = Get-Content .env | Where-Object { $_ -match '^(CLOUDFLARE_TOKEN|CLOUDFLARE_ZONE_ID)=' } | ForEach-Object { $k,$v = $_ -split '=',2; @{$k=$v} } | ForEach-Object { $_ }
+   $token = (Get-Content .env | Select-String '^CLOUDFLARE_TOKEN=').ToString().Split('=',2)[1]
+   $zone  = (Get-Content .env | Select-String '^CLOUDFLARE_ZONE_ID=').ToString().Split('=',2)[1]
+   Invoke-RestMethod -Method POST -Uri "https://api.cloudflare.com/client/v4/zones/$zone/purge_cache" -Headers @{ "Authorization" = "Bearer $token" } -ContentType "application/json" -Body '{"purge_everything":true}'
+   ```
+   Expected response: `success = True`. If `.env` is missing or the token is invalid, warn the user — do not skip the step silently.
 
 ## Browser Caching
-After deploying, changes may not be visible due to browser caching. Advise the user to hard refresh (`Ctrl+Shift+R`) or open an incognito window. If content is confirmed present via `curl` on the server but not visible in browser, it is always a cache issue.
+After deploying, **always purge the Cloudflare cache (step 6 above) before asking the user to refresh**. Cloudflare caches static assets aggressively; a hard refresh alone will not help if the CDN is still serving the old file. Only after purging should you advise the user to refresh.
 
-To verify content is actually live before concluding the user has a cache issue:
+To verify content is actually live on the public URL after purging:
+```powershell
+Invoke-RestMethod -Uri "https://keithhinds.co.uk/<path>" | Select-String "<expected string>"
+```
+
+To verify content is live at the origin (pre-CDN):
 ```powershell
 & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "curl -sL http://localhost:8080/<path>/ | head -10"
 ```
