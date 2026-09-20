@@ -172,8 +172,8 @@
         <p>
           The site is built without frameworks: plain HTML, CSS, and vanilla JavaScript for every page.
           Content is static where it can be, and a small Node.js/Express API handles the blog. The whole
-          thing runs on a Synology NAS in my home office, exposed to the internet via a Cloudflare Tunnel —
-          no cloud compute, no monthly hosting bill.
+          thing runs on a Synology NAS in my home office, exposed to the internet via a Cloudflare Tunnel.
+          No cloud compute, no monthly hosting bill.
         </p>
         <p>
           I built it this way deliberately. Static HTML loads instantly, is trivially cacheable, and
@@ -280,7 +280,7 @@
             </tr>
             <tr>
               <td>Database</td>
-              <td>SQLite — a single <code>posts.db</code> file on a Docker volume. No separate database server needed.</td>
+              <td>SQLite: a single <code>posts.db</code> file on a Docker volume. No separate database server needed.</td>
             </tr>
             <tr>
               <td>Container host</td>
@@ -288,7 +288,7 @@
             </tr>
             <tr>
               <td>Networking</td>
-              <td>Cloudflare Tunnel (token-based) handles public ingress — no open inbound ports. Tailscale mesh for private admin access.</td>
+              <td>Cloudflare Tunnel (token-based) handles public ingress with no open inbound ports. Tailscale mesh for private admin access.</td>
             </tr>
             <tr>
               <td>DNS / CDN</td>
@@ -340,7 +340,7 @@ networks:
         <h2>Why self-hosted?</h2>
         <p>
           Partly pragmatic, partly a learning exercise. Running infrastructure at home forces you to
-          understand the whole stack — DNS, networking, containers, process management — rather than
+          understand the whole stack (DNS, networking, containers, process management) rather than
           letting a PaaS abstract it away. I already had the NAS for backups, so the marginal cost of
           running a few extra containers is essentially zero.
         </p>

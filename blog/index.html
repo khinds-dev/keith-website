@@ -176,7 +176,7 @@
         var container = document.getElementById('postList');
         if (!posts.length) {
           container.className = '';
-          container.innerHTML = '<div class="empty-state">No posts yet — check back soon.</div>';
+          container.innerHTML = '<div class="empty-state">No posts yet. Check back soon.</div>';
           return;
         }
         container.innerHTML = posts.map(function (p) {
