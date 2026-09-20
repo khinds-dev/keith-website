@@ -91,6 +91,26 @@ To verify content is actually live before concluding the user has a cache issue:
 - Token-based tunnel (`keith-cloudflared` container, ID `a7eb6006-0c73-413a-aee0-ed634e6e1f04`).
 - Internal routing must target `keith-website:80` (Docker service name), **NOT** `localhost:8080`.
 
+## Cloudflare DNS & HTTPS Configuration
+The following settings are confirmed active on the `keithhinds.co.uk` zone. Do not change them.
+
+- **Always Use HTTPS**: ON (`SSL/TLS → Edge Certificates`). Upgrades any `http://` request to `https://` at the Cloudflare edge.
+- **www → non-www redirect**: Active as a Redirect Rule (`Rules → Redirect Rules`). Pattern `https://www.*` → target `https://${1}`, 301 permanent, query string preserved. A DNS A record for `www` pointing to `192.0.2.1` (proxied) exists solely to allow Cloudflare to intercept `www` traffic and fire the rule.
+- **Canonical URLs**: All canonical `<link>` tags, `og:url`, JSON-LD, and `sitemap.xml` use `https://keithhinds.co.uk` (no `www`). Keep it this way.
+
+### How nginx trailing-slash redirects interact with Cloudflare
+nginx issues a 301 to the trailing-slash version of a URL (e.g. `/about` → `/about/`) with `location: http://...` because nginx only sees plain HTTP internally (Cloudflare terminates TLS at the edge). "Always Use HTTPS" then catches that `http://` redirect and upgrades it. This means visiting a path without a trailing slash costs two redirects before landing. This is a known limitation of the setup — do not attempt to "fix" it by changing nginx config unless you fully understand the implications.
+
+### Verifying Cloudflare behaviour
+Use these `curl` commands to confirm all four entry points resolve correctly:
+```bash
+curl -sIL http://keithhinds.co.uk/    # → HTTPS 200
+curl -sIL http://www.keithhinds.co.uk/ # → HTTPS non-www 200
+curl -sIL https://www.keithhinds.co.uk/ # → HTTPS non-www 200
+curl -sIL https://keithhinds.co.uk/    # → 200 direct
+```
+Expected: all four end at `HTTP/2 200` on `https://keithhinds.co.uk/`.
+
 ---
 
 ## Website Redesign — Progress Tracker
@@ -162,6 +182,17 @@ This section tracks the full redesign brief agreed in the planning session. Upda
 
 ---
 
+### Post-redesign audit fixes (completed after Phase 6)
+
+- [x] **Blog listing excerpt/read-time bug** (commit `cd2d9ee`): `GET /api/posts` strips `body` and returns server-side `excerpt` and `read_time` fields. `blog/index.html` was ignoring these and computing them from `p.body` (always `undefined`), resulting in empty excerpts and hardcoded "1 min read" on every tile. Fixed by using `p.excerpt` and `p.read_time` directly.
+- [x] **x-powered-by header** (commit `e2a33e7`): Added `app.disable('x-powered-by')` to `api/server.js` to remove Express fingerprinting from all API responses.
+- [x] **Contact form subject field** (commit `e2a33e7`): `subject` was present in the HTML form but silently discarded by the API. Added `subject` column to the `contacts` table (with migration shim), destructure and store it in `POST /api/contact`, and use it as the SMTP email subject line when provided.
+- [x] **Canonical URL www mismatch** (commit `e2a33e7`): All canonical `<link>` tags, `og:url`, JSON-LD, and `sitemap.xml` were referencing `www.keithhinds.co.uk` while the live site serves from `keithhinds.co.uk`. Updated all files to use the non-www form.
+- [x] **Cloudflare: Always Use HTTPS** enabled via dashboard (`SSL/TLS → Edge Certificates`).
+- [x] **Cloudflare: www → non-www redirect rule** deployed via dashboard (`Rules → Redirect Rules`), with proxied `www` A record (`192.0.2.1`) added to allow the rule to fire.
+
+---
+
 ### Rollback point
 
 The commit immediately before the redesign began is tagged **`pre-redesign`** (commit `f52dc58`).
@@ -194,6 +225,12 @@ The tag is pushed to GitHub (`origin/pre-redesign`) so it survives any local res
 - **`/blog` URL stays intact** (blog/index.html, blog/post/index.html); only the nav label and page heading change to "Writing". No redirects needed.
 - **`/portfolio` stays intact** — the nav item is removed from primary nav (it folds into `/work`) but the URL must keep returning the existing page (no 404).
 - **Markdown renderer stays custom** (no new npm dependencies) but must be fixed for the known bugs.
-- **Contact form:** keep Formspree as primary for now; the API endpoint is a Phase 4 enhancement only.
+- **Contact form:** `/api/contact` is the primary handler; Formspree (`mppanpby`) is the silent fallback if the API is unreachable. The `subject` field is now stored and forwarded.
 - **Cloudflare tunnel token** is already committed in `docker-compose.yml` — do not rotate or redact it in code changes.
 - **Profile photo** is `profile.jpg` in the root — reference as `/profile.jpg` from all pages.
+
+## API Design Rules
+- **`GET /api/posts` does not return `body`**. It returns `excerpt` (string, ~160 chars plain text) and `read_time` (number, minutes) derived server-side. Any frontend consuming this endpoint must use `p.excerpt` and `p.read_time` — do not attempt to derive them from `p.body` which will be `undefined`.
+- **`GET /api/posts/:slug` returns full `body`** for individual post rendering. This is the only public endpoint that includes the raw Markdown body.
+- **`GET /api/posts/all` requires auth** (admin JWT). Returns all posts including unpublished, with full `body`.
+- When adding columns to any table, always add a migration shim (`try { db.exec('ALTER TABLE ... ADD COLUMN ...'); } catch (_) {}`) immediately after the `CREATE TABLE IF NOT EXISTS` block so existing deployments upgrade without errors.
