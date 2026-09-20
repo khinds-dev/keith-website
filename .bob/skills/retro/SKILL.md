@@ -1,6 +1,8 @@
 ---
 name: retro
-description: Use when the user says "/retro", "run retro", "retrospective", or "what did we learn". Reviews the current session and identifies actionable improvements to Bob's rules, skills, and AGENTS.md for this project.
+description: Use when the user explicitly says "/retro", "run retro", or "retrospective". Do NOT auto-invoke for general questions like "what did we learn" or "what went wrong" — only activate when the user clearly intends to run a structured retrospective.
+metadata:
+  disable-model-invocation: true
 ---
 
 # Retro Skill — Post-Session Retrospective
@@ -13,25 +15,27 @@ Review the completed session and extract improvements to how Bob operates on thi
 
 ## Step 1: Analyse the Session
 
-Review the full conversation and identify:
+Review the full conversation and identify issues across these specific surfaces:
 
-**What went wrong or was inefficient:**
+**Bob's behaviour:**
 - Moments where Bob made incorrect assumptions about the project
-- Questions asked that should have been answerable from existing documentation
+- Questions asked that should have been answerable from existing `AGENTS.md` guidance
 - Tasks that required multiple correction rounds before getting right
 - Tone, formatting, or style that didn't match what was expected
 - Anything that required the user to repeat themselves or re-explain
 
-**What went well:**
-- Approaches that worked cleanly the first time
-- Rules or AGENTS.md guidance that fired correctly
-- Patterns worth reinforcing
+**Project documentation gaps:**
+- Anything missing from `AGENTS.md` that would have prevented a problem (architecture facts, deployment rules, API design rules, nav conventions, etc.)
+- A `.bob/rules/` rule that doesn't exist yet but should
+- A skill trigger phrase that didn't match how the user actually invoked the task
+
+**`ISSUES.md` — check for resolved items:**
+- Read [`ISSUES.md`](ISSUES.md) and review each open `- [ ]` item
+- If any outstanding issue was fully resolved during this session, note it for updating in Step 4
+- Do not mark items resolved speculatively — only if the fix was confirmed in this session
 
 **Root causes:**
-- Missing guidance in `AGENTS.md` that would have prevented an issue
-- A rule that doesn't exist yet but should
-- A skill trigger that didn't match how the user actually invoked the task
-- Project context that exists but wasn't surfaced when needed
+For each problem found, identify *why* it happened: missing rule, unclear `AGENTS.md` entry, wrong skill description, project context that exists but wasn't surfaced when needed.
 
 ---
 
@@ -40,10 +44,11 @@ Review the full conversation and identify:
 **Before creating any todo list or making any changes**, write a plain conversational summary covering:
 
 1. **What went wrong** — specific moments with enough detail to understand the failure
-2. **Root causes** — why each problem happened (missing rule, unclear AGENTS.md entry, wrong skill description, etc.)
-3. **Proposed improvements** — one proposed fix per root cause, with an explanation of why it would help
+2. **Root causes** — why each problem happened
+3. **Proposed improvements** — one concrete fix per root cause, with an explanation of why it would help
+4. **ISSUES.md updates** — list any open items that were resolved this session and should be checked off
 
-**If there are no proposed improvements, stop here.** Do not create a todo list or make changes when there is nothing to improve.
+**If there are no proposed improvements and no `ISSUES.md` items to close, stop here.** Do not create a todo list or make changes when there is nothing to improve.
 
 ---
 
@@ -55,7 +60,8 @@ Only after presenting your findings, use `update_todo_list` to create a checklis
 ```
 [ ] Update AGENTS.md — brief description of what to add or change
 [ ] Add rule at .bob/rules/<name>.md — what it should cover
-[ ] Update skill description at .bob/skills/<name>/SKILL.md — what to clarify
+[ ] Update skill at .bob/skills/<name>/SKILL.md — what to clarify
+[ ] Mark ISSUES.md item resolved — SEC-01: HSTS (or whichever item)
 ```
 
 Use plain file paths — no markdown link syntax in the todo list.
@@ -80,17 +86,20 @@ Work through the todo list item by item:
 5. Move to the next item
 
 **Files you may modify:**
-- `AGENTS.md` — project-level context, conventions, deployment rules, nav rules, architecture facts
+- `AGENTS.md` — project-level context, conventions, deployment rules, nav rules, architecture facts, API design rules
+- `ISSUES.md` — mark resolved items by replacing `- [ ]` with `- [x]` and adding a brief resolution note and date
 - `.bob/rules/<name>.md` — focused, reusable rules for specific coding or style conventions
 - `.bob/skills/<name>/SKILL.md` — skill descriptions and workflows
 
-**Choosing between them:**
+**Choosing between `AGENTS.md` and a rule file:**
 - Use `AGENTS.md` for project context, architecture facts, deployment procedures, and conventions that apply to almost every task
-- Use a rule file for a specific, named convention that is self-contained (e.g. "always use trailing slashes in canonical tags")
+- Use a rule file for a specific, self-contained convention (e.g. "always use trailing slashes in canonical tags")
 - Use a skill update when a trigger phrase is wrong, a workflow step is missing, or the description doesn't match how the user actually invokes it
 
 ---
 
-## Step 5: Confirm
+## Step 5: Confirm and Commit
 
-After all changes are implemented, write a short summary of what was changed and why. Then prompt the user to commit the changes if they are happy with them.
+After all changes are implemented, write a short summary of what was changed and why.
+
+Then ask the user if they want to commit. If yes, stage and commit using the project's git convention — the user can also just say "push" and Bob will handle it.
