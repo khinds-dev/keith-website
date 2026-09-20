@@ -102,4 +102,4 @@ Work through the todo list item by item:
 
 After all changes are implemented, write a short summary of what was changed and why.
 
-Then ask the user if they want to commit. If yes, stage and commit using the project's git convention — the user can also just say "push" and Bob will handle it.
+Then **always commit and push without asking** — stage all changed files, commit with a descriptive message, and push to `origin main`. Do not wait for the user to say "push".

@@ -136,12 +136,13 @@ body {
 ## Browser Caching
 After deploying, **always purge the Cloudflare cache (step 6 above) before asking the user to refresh**. Cloudflare caches static assets aggressively; a hard refresh alone will not help if the CDN is still serving the old file. Only after purging should you advise the user to refresh.
 
-To verify content is actually live on the public URL after purging:
+**Verification must use the public URL, not just the origin.** The origin (`localhost:8080`) and the public URL (`https://keithhinds.co.uk/`) can serve different content when Cloudflare has a cached response. A passing origin check does NOT confirm the deploy is visible to users. Always verify the public URL as the final check:
+
 ```powershell
 Invoke-RestMethod -Uri "https://keithhinds.co.uk/<path>" | Select-String "<expected string>"
 ```
 
-To verify content is live at the origin (pre-CDN):
+Use the origin check only as a diagnostic step to confirm the Docker image was built correctly:
 ```powershell
 & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "curl -sL http://localhost:8080/<path>/ | head -10"
 ```
