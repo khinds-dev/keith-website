@@ -28,6 +28,20 @@ No exceptions. Even if the work is complete, even if previous instructions say "
 - **Git commit identity**: Must be `Keith Hinds <kman83@hotmail.co.uk>` to ensure GitHub commits are linked to `khinds-dev` contribution calendar.
 - **PowerShell syntax**: Avoid `&&` (fails in PS 5.1) — use `; if ($?) { ... }`. Do not use `<` redirection.
 
+## Bob Configuration
+
+### Hooks (`.bob/settings.json` + `.bob/hooks/`)
+
+A `UserPromptSubmit` hook is active on this workspace. It runs before every prompt and injects the current date and time into Bob's context automatically.
+
+- **Script**: `.bob/hooks/inject-date.mjs` — outputs `Current date and time: <locale string>` to stdout
+- **Hook config**: `.bob/settings.json` — registered as `UserPromptSubmit`, timeout 5s
+- **Runtime**: Bob executes hooks via its own internal Node.js runtime. `node` does not need to be on the system `$PATH` for hooks to work. Do not attempt to test hook scripts from PowerShell — they will fail with "node not recognised" even though the hook itself runs correctly.
+
+If the date is not appearing in context, check that `.bob/settings.json` exists and is valid JSON, and that the workspace is trusted.
+
+---
+
 ## Architecture & Conventions
 - **Routing**: Static vanilla HTML/CSS/JS served via `nginx:alpine`. Clean URLs are implemented via subdirectories containing `index.html` (e.g. `portfolio/index.html` served at `/portfolio`). Never use `.html` extensions in `href`.
 - **New pages**: Whenever adding `<page-name>/index.html`, explicitly add a `COPY <page-name>/index.html ...` line to [`Dockerfile`](Dockerfile:14).
