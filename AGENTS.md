@@ -8,7 +8,7 @@ This file provides guidance to agents when working with code in this repository.
 
 **Never deploy to the Synology NAS unless explicitly told to do so in that message.**
 
-The user works across multiple machines. Only one of them has Tailscale access to the Synology (100.123.139.84). Running `scp` or `ssh` deployment commands from the wrong machine will fail or hang.
+The user works across multiple machines. Only one of them has Tailscale access to the Synology (<synology-ip>). Running `scp` or `ssh` deployment commands from the wrong machine will fail or hang.
 
 **This rule overrides everything else in this file, including the Deployment Order section below.**
 
@@ -123,29 +123,29 @@ body {
 3. **Copy changed files to Synology** via legacy SCP (`-O` is required, `-P 83`). Copy only the files that changed. **Always use explicit destination paths — never a bare directory destination for `index.html` files** (SCP strips the source directory and will overwrite the wrong file). Non-`index.html` files (e.g. `profile.jpg`) are safe to send to a directory destination. Common files:
    ```powershell
    # Root-level files (non-index.html — directory destination is safe here)
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@<synology-ip>:/volume1/docker/keith-website/
    # Page index.html files — always explicit destination path
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 about/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/about/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 work/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/work/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 work/this-website/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/work/this-website/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 now/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/now/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 interests/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/interests/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/portfolio/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 contact/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/contact/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 repos/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/repos/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 blog/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/blog/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 blog/post/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/blog/post/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 admin/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/admin/index.html
-   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 api/server.js api/package.json keithhinds@100.123.139.84:/volume1/docker/keith-website/api/
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 about/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/about/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 work/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/work/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 work/this-website/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/work/this-website/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 now/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/now/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 interests/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/interests/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/portfolio/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 contact/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/contact/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 repos/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/repos/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 blog/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/blog/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 blog/post/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/blog/post/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 admin/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/admin/index.html
+   & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 api/server.js api/package.json keithhinds@<synology-ip>:/volume1/docker/keith-website/api/
    ```
 4. **Create any new remote directories** before copying into them:
    ```powershell
-   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "mkdir -p /volume1/docker/keith-website/<new-dir>"
+   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@<synology-ip> "mkdir -p /volume1/docker/keith-website/<new-dir>"
    ```
 5. **Rebuild & restart Docker containers** (requires passwordless sudo rule on Synology):
    ```powershell
-   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
+   & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@<synology-ip> "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
    ```
 6. **Purge Cloudflare cache** after every rebuild. Credentials are stored in `.env` (machine-local, never committed). Read them and call the purge API:
    ```powershell
@@ -167,7 +167,7 @@ Invoke-RestMethod -Uri "https://keithhinds.co.uk/<path>" | Select-String "<expec
 
 Use the origin check only as a diagnostic step to confirm the Docker image was built correctly:
 ```powershell
-& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "curl -sL http://localhost:8080/<path>/ | head -10"
+& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@<synology-ip> "curl -sL http://localhost:8080/<path>/ | head -10"
 ```
 
 **SSH verification timeout:** Always set `timeout_seconds: 60` when running short SSH verification commands (curl, grep, header checks) against the Synology. The default 300s tool timeout can cause the command to be `CANCELED` with no output. If a tool result comes back `CANCELED` or with empty stdout/stderr, do not assume success — state it clearly and retry.
