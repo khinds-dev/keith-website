@@ -87,6 +87,8 @@ To verify content is actually live before concluding the user has a cache issue:
 & "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@100.123.139.84 "curl -sL http://localhost:8080/<path>/ | head -10"
 ```
 
+**SSH verification timeout:** Always set `timeout_seconds: 60` when running short SSH verification commands (curl, grep, header checks) against the Synology. The default 300s tool timeout can cause the command to be `CANCELED` with no output. If a tool result comes back `CANCELED` or with empty stdout/stderr, do not assume success — state it clearly and retry.
+
 ## Cloudflare Tunnel Gotchas
 - Token-based tunnel (`keith-cloudflared` container, ID `a7eb6006-0c73-413a-aee0-ed634e6e1f04`).
 - Internal routing must target `keith-website:80` (Docker service name), **NOT** `localhost:8080`.
