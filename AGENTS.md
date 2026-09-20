@@ -152,6 +152,8 @@ Use the origin check only as a diagnostic step to confirm the Docker image was b
 
 **Post-deploy verification failure = re-deploy:** If the post-deploy SSH curl check (step above) is `CANCELED`, times out, or returns empty output, treat the entire deploy as unconfirmed. Re-run the SCP for all changed files and the `docker compose up -d --build` step before reporting success. A successful Docker compose output alone does not confirm the correct files were built into the image — the curl check is the only reliable confirmation.
 
+**SCP — always use explicit destination paths:** Every page in this project is named `index.html`. Never SCP to a directory destination (e.g. `scp about/index.html .../keith-website/`) — SCP will copy the file as `index.html` in that directory, silently overwriting the homepage or another page. Always specify the full destination path: `scp about/index.html .../keith-website/about/index.html`.
+
 ## Cloudflare Tunnel Gotchas
 - Token-based tunnel (`keith-cloudflared` container, ID `a7eb6006-0c73-413a-aee0-ed634e6e1f04`).
 - Internal routing must target `keith-website:80` (Docker service name), **NOT** `localhost:8080`.
