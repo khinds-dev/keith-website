@@ -9,9 +9,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Closed | 3 |
-| 🔴 Open — High | 2 |
-| 🟡 Open — Medium | 4 |
+| ✅ Closed | 9 |
+| 🔴 Open — High | 0 |
+| 🟡 Open — Medium | 0 |
 | 🟢 Open — Low | 2 |
 | **Total** | **11** |
 
@@ -24,6 +24,12 @@ Historical record of resolved issues. Do not remove entries — update the check
 - [x] **`www` → non-`www` 301 redirect** — Cloudflare redirect rule configured. Permanent (301), HTTPS preserved, paths and query strings forwarded correctly. All four entry points (`http://www`, `https://www`, `http://` bare, `https://` bare) resolve to `https://keithhinds.co.uk/`.
 - [x] **"Always Use HTTPS" enabled** — Configured in Cloudflare SSL/TLS → Edge Certificates. HTTP requests are upgraded to HTTPS at the edge before reaching the origin.
 - [x] **Core entry points verified** — All four protocol/subdomain combinations resolve correctly to `https://keithhinds.co.uk/` with no loops or errors confirmed via `curl`.
+- [x] **SEC-01: HSTS** — Added `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` via nginx `add_header`.
+- [x] **SEC-02: X-Frame-Options** — Added `X-Frame-Options: SAMEORIGIN` via nginx `add_header`.
+- [x] **SEC-03: X-Content-Type-Options** — Added `X-Content-Type-Options: nosniff` via nginx `add_header`.
+- [x] **SEC-04: Referrer-Policy** — Added `Referrer-Policy: strict-origin-when-cross-origin` via nginx `add_header`.
+- [x] **SEC-05: Permissions-Policy** — Added `Permissions-Policy: camera=(), microphone=(), geolocation=()` via nginx `add_header`.
+- [x] **PERF-01: Trailing-slash redirect 2-hop chain** — Added `absolute_redirect off` to nginx; redirects now use relative `Location` headers, resolving to a single hop via Cloudflare. Also fixes CANON-01 and SEO-01 (served URL now matches existing no-slash canonicals and sitemap entries).
 
 ---
 
@@ -33,7 +39,7 @@ Historical record of resolved issues. Do not remove entries — update the check
 
 ### SEC-01: Missing Strict-Transport-Security (HSTS)
 
-- [ ] **Resolved**
+- [x] **Resolved**
 
 **Severity:** 🔴 High
 **Area:** Security — HTTP Headers
@@ -73,7 +79,7 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; prelo
 
 ### SEC-02: Missing X-Frame-Options Header
 
-- [ ] **Resolved**
+- [x] **Resolved**
 
 **Severity:** 🔴 High
 **Area:** Security — HTTP Headers
@@ -114,7 +120,7 @@ Expected output: `x-frame-options: SAMEORIGIN`
 
 ### SEC-03: Missing X-Content-Type-Options Header
 
-- [ ] **Resolved**
+- [x] **Resolved**
 
 **Severity:** 🟡 Medium
 **Area:** Security — HTTP Headers
@@ -137,7 +143,7 @@ add_header X-Content-Type-Options "nosniff" always;
 
 ### SEC-04: Missing Referrer-Policy Header
 
-- [ ] **Resolved**
+- [x] **Resolved**
 
 **Severity:** 🟡 Medium
 **Area:** Security — HTTP Headers
@@ -162,7 +168,7 @@ This sends the full URL as referrer for same-origin requests, but only the origi
 
 ### SEC-05: Missing Permissions-Policy Header
 
-- [ ] **Resolved**
+- [x] **Resolved**
 
 **Severity:** 🟡 Medium
 **Area:** Security — HTTP Headers
@@ -187,7 +193,7 @@ Adjust the policy to permit any features that are intentionally used. The above 
 
 ### PERF-01: Nginx Trailing-Slash Redirect Emits HTTP Location (2-Hop Chain)
 
-- [ ] **Resolved**
+- [x] **Resolved**
 
 **Severity:** 🟡 Medium
 **Area:** Redirects / Performance
@@ -228,7 +234,7 @@ This also resolves the canonical tag mismatch (see CANON-01) and sitemap inconsi
 
 ### CANON-01: Canonical Tag Trailing-Slash Mismatch
 
-- [ ] **Resolved**
+- [x] **Resolved** (via PERF-01 Option B — `absolute_redirect off` means `/about` is served directly, matching existing canonical tags)
 
 **Severity:** 🟢 Low
 **Area:** SEO — Canonical Tags
@@ -273,7 +279,7 @@ Add `absolute_redirect off;` to [`nginx.conf`](nginx.conf) (same as PERF-01). Se
 
 ### SEO-01: Sitemap URLs Do Not Match Served URL Form
 
-- [ ] **Resolved**
+- [x] **Resolved** (via PERF-01 Option B — no trailing-slash redirect, so sitemap no-slash URLs are served directly)
 
 **Severity:** 🟢 Low
 **Area:** SEO — sitemap.xml
