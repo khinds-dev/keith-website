@@ -150,6 +150,8 @@ Use the origin check only as a diagnostic step to confirm the Docker image was b
 
 **SSH verification timeout:** Always set `timeout_seconds: 60` when running short SSH verification commands (curl, grep, header checks) against the Synology. The default 300s tool timeout can cause the command to be `CANCELED` with no output. If a tool result comes back `CANCELED` or with empty stdout/stderr, do not assume success — state it clearly and retry.
 
+**Post-deploy verification failure = re-deploy:** If the post-deploy SSH curl check (step above) is `CANCELED`, times out, or returns empty output, treat the entire deploy as unconfirmed. Re-run the SCP for all changed files and the `docker compose up -d --build` step before reporting success. A successful Docker compose output alone does not confirm the correct files were built into the image — the curl check is the only reliable confirmation.
+
 ## Cloudflare Tunnel Gotchas
 - Token-based tunnel (`keith-cloudflared` container, ID `a7eb6006-0c73-413a-aee0-ed634e6e1f04`).
 - Internal routing must target `keith-website:80` (Docker service name), **NOT** `localhost:8080`.
