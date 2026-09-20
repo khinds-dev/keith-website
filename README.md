@@ -2,7 +2,7 @@
 
 Personal website and blog for Keith Hinds, served via Nginx + Node.js in Docker on a Synology NAS, publicly accessible via a Cloudflare Tunnel.
 
-**Live site:** [https://www.keithhinds.co.uk](https://www.keithhinds.co.uk)
+**Live site:** [https://keithhinds.co.uk](https://keithhinds.co.uk)
 
 ---
 
@@ -10,21 +10,35 @@ Personal website and blog for Keith Hinds, served via Nginx + Node.js in Docker 
 
 ```
 index.html               — Home / landing page
-portfolio/index.html     — Portfolio page
-contact/index.html       — Contact page
-repos/index.html         — GitHub repositories page
+about/index.html         — About page
+work/index.html          — Work and experience
+work/this-website/       — Architecture write-up for this site
+now/index.html           — Now page (current focus)
+interests/index.html     — Interests outside work
+portfolio/index.html     — Portfolio (legacy, kept at existing URL)
+repos/index.html         — GitHub repositories
 blog/index.html          — Public blog post listing
 blog/post/index.html     — Single blog post view
+contact/index.html       — Contact form
 admin/index.html         — Password-protected blog admin editor
+404.html                 — Custom 404 page
+
+css/
+  shared.css             — Shared design tokens, reset, nav, footer
+
+js/
+  nav.js                 — Shared hamburger/nav toggle script
 
 api/
-  server.js              — Node.js/Express REST API (posts + image uploads)
-  package.json           — API dependencies (Express, better-sqlite3, multer, jsonwebtoken)
+  server.js              — Node.js/Express REST API (posts, images, contact form)
+  package.json           — API dependencies (Express, better-sqlite3, multer, jsonwebtoken, nodemailer)
   Dockerfile             — Node 20 Alpine image for the API container
 
 nginx.conf               — Nginx config (static files + /api/* proxy to keith-api:3000)
 Dockerfile               — Nginx Alpine image for the web container
 docker-compose.yml       — Defines all three services: keith-website, keith-api, keith-cloudflared
+robots.txt               — Crawl directives
+sitemap.xml              — Sitemap for all public pages
 ```
 
 ---
@@ -48,7 +62,7 @@ docker-compose.yml       — Defines all three services: keith-website, keith-ap
 | Container | Purpose | Internal port |
 |---|---|---|
 | `keith-website` | Serves static HTML via nginx | 80 (mapped to host 8080) |
-| `keith-api` | REST API for blog posts & uploads | 3000 (internal only) |
+| `keith-api` | REST API for blog posts, images, and contact | 3000 (internal only) |
 | `keith-cloudflared` | Cloudflare Tunnel to `keith-website:80` | — |
 
 nginx proxies all `/api/*` requests to `keith-api:3000`. Everything else is served as static files.
@@ -60,17 +74,20 @@ nginx proxies all `/api/*` requests to `keith-api:3000`. Everything else is serv
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `POST` | `/api/login` | — | Exchange password for JWT token |
-| `GET` | `/api/posts` | — | List published posts |
-| `GET` | `/api/posts/:slug` | — | Get a single published post |
-| `GET` | `/api/posts/all` | ✓ | List all posts (incl. drafts) |
+| `GET` | `/api/posts` | — | List published posts (includes `excerpt` and `read_time`; no `body`) |
+| `GET` | `/api/posts/:slug` | — | Get a single published post (includes full `body`) |
+| `GET` | `/api/posts/all` | ✓ | List all posts including drafts (includes full `body`) |
 | `POST` | `/api/posts` | ✓ | Create a post |
 | `PUT` | `/api/posts/:id` | ✓ | Update a post |
 | `DELETE` | `/api/posts/:id` | ✓ | Delete a post |
 | `POST` | `/api/posts/:id/image` | ✓ | Upload a cover image |
 | `DELETE` | `/api/posts/:id/image` | ✓ | Remove a cover image |
 | `GET` | `/api/images/:filename` | — | Serve an uploaded image |
+| `POST` | `/api/contact` | — | Submit contact form (stored in SQLite; forwarded via SMTP if configured) |
 
 Post bodies support Markdown (headings, bold, italic, code blocks, lists, blockquotes, links).
+
+**Note:** `GET /api/posts` does not return `body`. It returns server-computed `excerpt` (~160 chars plain text) and `read_time` (minutes). Use `GET /api/posts/:slug` for the full body.
 
 ---
 
@@ -90,6 +107,11 @@ JWT_SECRET=long-random-string-min-40-chars
 | `DB_PATH` | `/data/posts.db` | SQLite database file path |
 | `IMAGES_DIR` | `/data/images` | Directory for uploaded cover images |
 | `PORT` | `3000` | API listen port |
+| `SMTP_HOST` | — | Optional: SMTP server for contact form email forwarding |
+| `SMTP_PORT` | `587` | Optional: SMTP port |
+| `SMTP_USER` | — | Optional: SMTP username |
+| `SMTP_PASS` | — | Optional: SMTP password |
+| `SMTP_TO` | — | Optional: email address to forward contact form submissions to |
 
 ---
 
@@ -104,8 +126,8 @@ JWT_SECRET=long-random-string-min-40-chars
 
 **1. Copy all files:**
 ```powershell
-& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 -r api blog admin keithhinds@100.123.139.84:/volume1/docker/keith-website/
-& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml keithhinds@100.123.139.84:/volume1/docker/keith-website/
+& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 -r api blog admin about work now interests css js keithhinds@100.123.139.84:/volume1/docker/keith-website/
+& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml robots.txt sitemap.xml 404.html keithhinds@100.123.139.84:/volume1/docker/keith-website/
 & "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html contact/index.html repos/index.html keithhinds@100.123.139.84:/volume1/docker/keith-website/
 ```
 
@@ -130,10 +152,11 @@ JWT_SECRET=long-random-string-min-40-chars
 
 ## Cloudflare Tunnel
 
-- **Public URL:** `https://www.keithhinds.co.uk`
+- **Public URL:** `https://keithhinds.co.uk`
 - **Tunnel name:** `Synology KmanDS220` — managed at [one.dash.cloudflare.com](https://one.dash.cloudflare.com) → Networks → Tunnels & Mesh
-- **Route:** subdomain `www`, service `HTTP`, URL `keith-website:80`
+- **Route:** service `HTTP`, URL `keith-website:80`
 - ⚠️ Must use `keith-website:80` (Docker service name) — **not** `localhost:8080`
+- `www` → non-`www` redirect is handled by a Cloudflare Redirect Rule (not nginx)
 
 ---
 
