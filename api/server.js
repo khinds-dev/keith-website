@@ -9,6 +9,7 @@ const fs = require('fs');
 const multer = require('multer');
 
 const app = express();
+app.disable('x-powered-by');
 app.use(express.json());
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -69,10 +70,14 @@ db.exec(`
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT NOT NULL,
     email      TEXT NOT NULL,
+    subject    TEXT NOT NULL DEFAULT '',
     message    TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   )
 `);
+
+// Migrate: add subject column if upgrading from old schema
+try { db.exec("ALTER TABLE contacts ADD COLUMN subject TEXT NOT NULL DEFAULT ''"); } catch (_) {}
 
 // ── Multer (image uploads) ────────────────────────────────────────────────────
 const imageFileFilter = (req, file, cb) => {
@@ -178,7 +183,7 @@ app.post('/api/login', (req, res) => {
 
 // POST /api/contact  — public, store contact message + optional SMTP forward
 app.post('/api/contact', async (req, res) => {
-  const { name, email, message } = req.body || {};
+  const { name, email, subject, message } = req.body || {};
 
   // ── Validation ──────────────────────────────────────────────────────────────
   const errors = {};
@@ -193,11 +198,12 @@ app.post('/api/contact', async (req, res) => {
 
   const safeName    = String(name).trim();
   const safeEmail   = String(email).trim().toLowerCase();
+  const safeSubject = subject ? String(subject).trim() : '';
   const safeMessage = String(message).trim();
 
   // ── Store in DB ─────────────────────────────────────────────────────────────
-  db.prepare('INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)')
-    .run(safeName, safeEmail, safeMessage);
+  db.prepare('INSERT INTO contacts (name, email, subject, message) VALUES (?, ?, ?, ?)')
+    .run(safeName, safeEmail, safeSubject, safeMessage);
 
   // ── Optional SMTP forward ───────────────────────────────────────────────────
   if (mailer) {
@@ -206,7 +212,7 @@ app.post('/api/contact', async (req, res) => {
         from:    `"Keith Hinds Website" <${SMTP_USER}>`,
         to:      CONTACT_TO,
         replyTo: `"${safeName}" <${safeEmail}>`,
-        subject: `Contact form: ${safeName}`,
+        subject: safeSubject ? `Contact form: ${safeSubject}` : `Contact form: ${safeName}`,
         text:    `Name: ${safeName}\nEmail: ${safeEmail}\n\n${safeMessage}`,
         html:    `<p><strong>Name:</strong> ${safeName}</p>` +
                  `<p><strong>Email:</strong> ${safeEmail}</p>` +

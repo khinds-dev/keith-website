@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Post — Keith Hinds</title>
   <meta name="description" content="A post on the Keith Hinds blog." />
-  <link rel="canonical" href="https://www.keithhinds.co.uk/blog/post" />
+  <link rel="canonical" href="https://keithhinds.co.uk/blog/post" />
   <meta property="og:title" content="Post — Keith Hinds" />
   <meta property="og:description" content="A post on the Keith Hinds blog." />
-  <meta property="og:url" content="https://www.keithhinds.co.uk/blog/post" />
-  <meta property="og:image" content="https://www.keithhinds.co.uk/profile.jpg" />
+  <meta property="og:url" content="https://keithhinds.co.uk/blog/post" />
+  <meta property="og:image" content="https://keithhinds.co.uk/profile.jpg" />
   <meta property="og:type" content="article" />
   <link rel="stylesheet" href="/css/shared.css" />
   <style>
@@ -283,8 +283,8 @@
           };
           setMeta('og:title', post.title + ' — Keith Hinds');
           setMeta('og:description', deriveExcerpt(post.body || '', 200) || document.querySelector('meta[name="description"]').getAttribute('content'));
-          setMeta('og:url', 'https://www.keithhinds.co.uk/blog/post?slug=' + encodeURIComponent(post.slug));
-          if (post.cover_image) setMeta('og:image', 'https://www.keithhinds.co.uk' + post.cover_image);
+          setMeta('og:url', 'https://keithhinds.co.uk/blog/post?slug=' + encodeURIComponent(post.slug));
+          if (post.cover_image) setMeta('og:image', 'https://keithhinds.co.uk' + post.cover_image);
           var date = new Date(post.created_at).toLocaleDateString('en-GB', {
             day: 'numeric', month: 'long', year: 'numeric'
           });
