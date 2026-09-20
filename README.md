@@ -129,26 +129,26 @@ JWT_SECRET=long-random-string-min-40-chars
 
 **1. Copy all files:**
 ```powershell
-& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 -r api blog admin about work now interests css js keithhinds@&lt;synology-ip&gt;:/volume1/docker/keith-website/
-& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml robots.txt sitemap.xml 404.html keithhinds@&lt;synology-ip&gt;:/volume1/docker/keith-website/
-& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html contact/index.html repos/index.html keithhinds@&lt;synology-ip&gt;:/volume1/docker/keith-website/
+& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 -r api blog admin about work now interests css js keithhinds@<synology-ip>:/volume1/docker/keith-website/
+& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 index.html profile.jpg nginx.conf Dockerfile docker-compose.yml robots.txt sitemap.xml 404.html keithhinds@<synology-ip>:/volume1/docker/keith-website/
+& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 portfolio/index.html contact/index.html repos/index.html keithhinds@<synology-ip>:/volume1/docker/keith-website/
 ```
 
 **2. Rebuild and restart:**
 ```powershell
-& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@&lt;synology-ip&gt; "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
+& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@<synology-ip> "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
 ```
 
 ### Updating a single file
 
 ```powershell
-& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 <file> keithhinds@&lt;synology-ip&gt;:/volume1/docker/keith-website/<file>
-& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@&lt;synology-ip&gt; "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
+& "C:\Windows\System32\OpenSSH\scp.exe" -O -P 83 <file> keithhinds@<synology-ip>:/volume1/docker/keith-website/<file>
+& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@<synology-ip> "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose up -d --build"
 ```
 
 ### Stopping the containers
 ```powershell
-& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@&lt;synology-ip&gt; "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose down"
+& "C:\Windows\System32\OpenSSH\ssh.exe" -p 83 keithhinds@<synology-ip> "cd /volume1/docker/keith-website && sudo /var/packages/ContainerManager/target/usr/bin/docker compose down"
 ```
 
 ---

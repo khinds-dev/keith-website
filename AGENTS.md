@@ -111,6 +111,9 @@ body {
 - **Rebase conflicts during `git pull --rebase`**: if a conflict occurs, read the conflicted file carefully, merge the changes by hand, then `git add <file> && GIT_EDITOR=true git rebase --continue`.
 
 ## Deployment Order
+
+**Synology IP:** The real Tailscale IP is intentionally not stored in this repo. Use `<synology-ip>` as a placeholder in any new deployment commands added to this file or `README.md`. Never commit the real address.
+
 **Always follow this order — pull first, commit, then deploy:**
 1. **Pull latest changes before starting any work:**
    ```bash
