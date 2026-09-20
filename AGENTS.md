@@ -40,6 +40,52 @@ No exceptions. Even if the work is complete, even if previous instructions say "
 - The `/admin` page is intentionally excluded from public navigation.
 - When adding or editing nav menus, update **all** page files to keep them consistent.
 
+## Navigation CSS — Fixed Navbar Spec
+
+The navbar is `position: fixed`. **Never change this to `position: sticky`** — sticky silently breaks when the parent element is `display: flex` (which `body` is on this project). The complete correct implementation is:
+
+```css
+/* css/shared.css */
+
+html {
+  scroll-padding-top: var(--nav-height);  /* prevents anchor targets hiding under the nav */
+}
+
+body {
+  padding-top: var(--nav-height);         /* pushes content below the fixed bar on load */
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  z-index: 1000;                          /* high enough to clear all page content */
+  background: var(--color-bg);
+}
+
+/* Mobile dropdown — also fixed so it tracks the fixed navbar */
+@media (max-width: 640px) {
+  .nav-links {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+  }
+}
+```
+
+**Checklist when touching nav CSS:**
+1. `.navbar` → `position: fixed; top: 0; left: 0; right: 0; z-index: 1000`
+2. `body` → `padding-top: var(--nav-height)` (prevents content loading under the bar)
+3. `html` → `scroll-padding-top: var(--nav-height)` (anchor jumps land at the right position)
+4. Mobile `.nav-links` → `position: fixed; top: var(--nav-height); z-index: 1000; max-height: calc(100vh - var(--nav-height)); overflow-y: auto`
+5. Check all per-page `<style>` blocks for `.navbar` overrides — if a page sets `.navbar { padding: X Y }`, the shorthand must use `0` for top/bottom (e.g. `padding: 0 1.25rem`) to avoid changing the bar height.
+
 ## Pace & Stopping Rule
 - **Complete one phase or named section at a time, then stop.** After finishing a section, summarise what was done and wait for the user to say "continue" or start a fresh task. Never automatically start the next phase or section.
 - **Double-check completed work before closing a phase.** At the end of every phase or named section, run a verification pass covering: (1) all new/modified files exist and have correct content; (2) every HTML page has `shared.css`, `nav.js`, correct nav links, and correct `class="active"` state; (3) the `Dockerfile` has a `COPY` line for every new page; (4) `sitemap.xml` includes every public page; (5) no broken internal links (no old nav hrefs like `/portfolio` or `/repos` remaining in nav blocks); (6) any cross-file consistency requirements (e.g. footer copyright, meta tags, canonical URLs). Fix any issues found before committing the phase.
