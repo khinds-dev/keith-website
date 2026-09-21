@@ -109,6 +109,7 @@ body {
 - **Always `git pull` before making any changes.** Run `git pull origin main` at the start of every session and before starting any new task. This prevents merge conflicts caused by external commits.
 - **Never use `git checkout --theirs` or `git checkout --ours` to resolve merge conflicts** — these silently discard one side's changes entirely. Always inspect the conflict manually, keep both sides' intended changes, then `git add` and continue.
 - **Rebase conflicts during `git pull --rebase`**: if a conflict occurs, read the conflicted file carefully, merge the changes by hand, then `git add <file> && GIT_EDITOR=true git rebase --continue`.
+- **Do not use `apply_diff` to insert literal `<placeholder>` text into markdown files.** The diff tool can silently HTML-encode angle brackets as `&lt;` / `&gt;`, corrupting the output. Use `search_and_replace` or `execute_command` with `sed` instead when the content contains literal `<` or `>` characters.
 
 ## Deployment Order
 
